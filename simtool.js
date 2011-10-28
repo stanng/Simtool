@@ -69,6 +69,23 @@ function __nav(mode,druid) {
   return false;
 }
 
+function refresh_tags() {
+  $.ajax({
+    url: "get_tags.php",
+	dataType: "json",
+	success: generate_tags
+	});
+}
+
+function generate_tags(data) {
+  $("#tags-cloud").html("");
+  for (i = 0; i < data.length; i++){
+    $("#tags-cloud")
+      .append($('<span style="background:beige;potition:relative;float:left;margin:4px;border:1px black solid;padding:3px;"></span>')
+	      .html(data[i]));
+  }
+}
+
 function refresh_rows(druid,howmany) {
 $.ajax({
     url: "get_data.php",
@@ -79,7 +96,7 @@ $.ajax({
 }
 
 function generate_rows(data) {
-  $("tbody").html("");
+  $("#data-tbody").html("");
   for (i=0; i<data.length; i++) {
     var this_druid = data[i].druid;
     var this_pdf = data[i].pdf;
@@ -144,9 +161,11 @@ function generate_rows(data) {
 	      });
     tr.append(notes_field);
 
-    $("tbody").append(tr);
+    $("#data-tbody").append(tr);
   }
-  $("tbody").children("tr:first").css('background','lightgreen');    
+  $("#data-tbody").children("tr:first").css('background','lightgreen');    
+
+  refresh_tags();
   return false;
 }
 

@@ -29,16 +29,18 @@ while ($row = mysql_fetch_assoc($result)){
   //$pdffile_path="file://localhost/Users/stanleyng/feigenbaum/pdfs/"    . $candidate_druid . ".pdf";
   $pdffile_path="http://${salt_user}:${salt_pw}@salt-dev.stanford.edu/assets/${candidate_druid}/${candidate_druid}.pdf";
 
-  $q_details="select textlen, description, tags, notes from urllist where url='$textfile_path'";
+  $q_details="select textlen, title, description, tags, notes from urllist where url='$textfile_path'";
   $result_details = mysql_query($q_details);
   $row_details    = mysql_fetch_assoc($result_details);
   $doclen  = $row_details['textlen'];
+  $title   = $row_details['title'];
   $summary = $row_details['description'];
   $tags    = $row_details['tags'];
   $notes   = $row_details['notes'];
 
   $json_row = array(
        'pdf'     => "$pdffile_path",
+       'title'   => "$title",
        'summary' => "$summary",
        'druid'   => "$candidate_druid",
        'doclen'  => "$doclen",
