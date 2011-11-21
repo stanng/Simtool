@@ -15,8 +15,12 @@ $return_array = array();
 while ($row = mysql_fetch_assoc($result)){
   $current_tags_string = $row['tags'];
   $current_tags_array = preg_split("/\s*,\s*/",$current_tags_string);
+  
+  if (in_array("",$current_tags_array)) {
+    $current_tags_array = array_filter($current_tags_array,create_function("\$x","return \$x != '';"));
+  }
   $return_array = array_merge($return_array, $current_tags_array); 
- }
+}
 $temp =    array_values(array_unique($return_array));
 //sort($temp);
 usort($temp, strcasecmp);
