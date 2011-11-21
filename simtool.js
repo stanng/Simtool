@@ -87,6 +87,7 @@ function generate_tags(data) {
 }
 
 function refresh_rows(druid,howmany) {
+var druid = druid.match(/[a-z]{2}\d{3}[a-z]{2}\d{4}/)[0];
 $.ajax({
     url: "get_data.php",
 	data: {druid: druid, howmany: howmany},
@@ -123,7 +124,7 @@ function generate_rows(data) {
 	     });
     tr.append(pdf_button);
     
-    var summary_button = $('<td valign="top"> <div/><input type="button" value="SUMMARY" /> </td>')
+    var summary_button = $('<td valign="top"> <div/><input type="button" value="SUM" /> </td>')
       .hover(function () {$("div",this).show()},
 	     function () {$("div",this).hide()});
     $("div", summary_button)
@@ -134,7 +135,7 @@ function generate_rows(data) {
     
     tr.append($('<td valign="top"> <span class="display-druid" >'+data[i].druid+'</span></td>'));
     tr.append($('<td valign="top"> <span class="display-doclen" >'+data[i].doclen+'</span></td>'));
-    tr.append($('<td valign="top"> <span class="display-cos-sim" >'+data[i].cos_sim+'</span></td>'));
+    tr.append($('<td valign="top"> <span class="display-cos-sim" >'+Math.round(1000*data[i].cos_sim)/1000+'</span></td>'));
     
     var tags_field = $('<td valign="top"> <textarea></textarea></td>')
       $("textarea", tags_field).val(data[i].tags)
