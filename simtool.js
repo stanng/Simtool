@@ -98,7 +98,7 @@ $.ajax({
 
 function generate_rows(data) {
   $("#data-tbody").html("");
-  for (i=0; i<data.length; i++) {
+  for (var i=0; i<data.length; i++) {
     var this_druid = data[i].druid;
     var this_pdf = data[i].pdf;
     
@@ -137,6 +137,20 @@ function generate_rows(data) {
     tr.append($('<td valign="top"> <span class="display-doclen" >'+data[i].doclen+'</span></td>'));
     tr.append($('<td valign="top"> <span class="display-cos-sim" >'+Math.round(1000*data[i].cos_sim)/1000+'</span></td>'));
     
+
+    var metadata_field = $('<td valign="top"> <textarea></textarea></td>')
+      $("textarea", metadata_field).val(format_metadata(data[i]))
+      .change(function(){
+		var druid = $(this)
+		  .parent() //td
+		  .parent() //tr
+		  .find(".display-druid")
+		  .html();
+		//FIXME... save metadata?
+		save_metadata(druid, $(this).val());
+	      });
+    tr.append(metadata_field);
+
     var tags_field = $('<td valign="top"> <textarea></textarea></td>')
       $("textarea", tags_field).val(data[i].tags)
       .change(function(){
@@ -176,6 +190,19 @@ function get_pdf_name(druid) {
   return "http://"+salt_user+":"+salt_pw+"\@salt-dev.stanford.edu/assets/"+druid+"/"+druid+".pdf";
 }
 
+function save_metadata(druid, metadata) {
+  //lets just get the title first:
+  //assume [TITLE] titlwlekn p [PAGES] asdlksd [CORPORATE_ENTITY] sdfgas, etc.
+  var title = metadata.split(/\[TITLE\]/)[1];
+  title = $.trim(title.split(/\[[A-Z_\-\s]*\]/)[0]);
+  $.ajax({
+    url: "set_data.php",
+	data: {druid: druid, title: title},
+	dataType: "text",
+	success: confirm
+	});
+}
+
 function save_tags(druid, tags) {
   $.ajax({
     url: "set_data.php",
@@ -196,4 +223,16 @@ function save_notes(druid, notes) {
 
 function confirm(msg) {
   //alert(msg);
+}
+
+function format_metadata (data) {
+  var field_values = [];
+  var field_names = [];
+  field_names.push("[TITLE]");
+  field_values.push(data.title);
+  var text = "";
+  for (var i=0;i<field_names.length;i++) {
+    text += field_names[i]+" "+field_values[i]+"\n";
+  }
+  return text;
 }
