@@ -195,9 +195,59 @@ function save_metadata(druid, metadata) {
   //assume [TITLE] titlwlekn p [PAGES] asdlksd [CORPORATE_ENTITY] sdfgas, etc.
   var title = metadata.split(/\[TITLE\]/)[1];
   title = $.trim(title.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var originator = metadata.split(/\[ORIGINATOR\]/)[1];
+  originator = $.trim(originator.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var date = metadata.split(/\[DATE\]/)[1];
+  date = $.trim(date.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var document_type = metadata.split(/\[DOCUMENT_TYPE\]/)[1];
+  document_type = $.trim(document_type.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var document_subtype = metadata.split(/\[DOCUMENT_SUBTYPE\]/)[1];
+  document_subtype = $.trim(document_subtype.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var containing_work = metadata.split(/\[CONTAINING_WORK\]/)[1];
+  containing_work = $.trim(containing_work.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var corporate_entity = metadata.split(/\[CORPORATE_ENTITY\]/)[1];
+  corporate_entity = $.trim(corporate_entity.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var number = metadata.split(/\[NUMBER\]/)[1];
+  number = $.trim(number.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var extent = metadata.split(/\[EXTENT\]/)[1];
+  extent = $.trim(extent.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var language = metadata.split(/\[LANGUAGE\]/)[1];
+  language = $.trim(language.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var abstract = metadata.split(/\[ABSTRACT\]/)[1];
+  abstract = $.trim(abstract.split(/\[[A-Z_\-\s]*\]/)[0]);
+
+
+  /**********
+  +  $doclen           = $row_details['textlen'];
+  +  $title            = $row_details['title'];
+  +  $summary          = $row_details['description'];
+  +  $tags             = $row_details['tags'];
+  +  $notes            = $row_details['notes'];
+  +  $originator       = $row_details['originator'];
+  +  $date             = $row_details['date'];
+  +  $document_type    = $row_details['document_type'];
+  +  $document_subtype = $row_details['document_subtype'];
+  +  $containing_work  = $row_details['containing_work'];
+  +  $corporate_entity = $row_details['corporate_entity'];
+  +  $number           = $row_details['number'];
+  +  $extent           = $row_details['extent'];
+  +  $language         = $row_details['language'];
+  +  $abstract         = $row_details['abstract'];
+*********/
   $.ajax({
     url: "set_data.php",
-	data: {druid: druid, title: title},
+	data: {druid: druid, 
+	  title: title,
+	  originator: originator,
+	  date: date,
+	  document_type: document_type,
+	  document_subtype: document_subtype,
+	  containing_work: containing_work,
+	  corporate_entity: corporate_entity,
+	  number: number,
+	  extent: extent,
+	  language: language,
+	  abstract: abstract},
 	dataType: "text",
 	success: confirm
 	});
@@ -230,6 +280,26 @@ function format_metadata (data) {
   var field_names = [];
   field_names.push("[TITLE]");
   field_values.push(data.title);
+  field_names.push("[DOCUMENT_TYPE]");
+  field_values.push(data.document_type);
+  field_names.push("[DOCUMENT_SUBTYPE]");
+  field_values.push(data.document_subtype);
+  field_names.push("[ORIGINATOR]");
+  field_values.push(data.originator);
+  field_names.push("[DATE]");
+  field_values.push(data.date);
+  field_names.push("[CONTAINING_WORK]");
+  field_values.push(data.containing_work);
+  field_names.push("[CORPORATE_ENTITY]");
+  field_values.push(data.corporate_entity);
+  field_names.push("[NUMBER]");
+  field_values.push(data.number);
+  field_names.push("[EXTENT]");
+  field_values.push(data.extent);
+  field_names.push("[LANGUAGE]");
+  field_values.push(data.language);
+  field_names.push("[ABSTRACT]");
+  field_values.push(data.abstract);
   var text = "";
   for (var i=0;i<field_names.length;i++) {
     text += field_names[i]+" "+field_values[i]+"\n";

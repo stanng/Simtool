@@ -29,24 +29,47 @@ while ($row = mysql_fetch_assoc($result)){
   //$pdffile_path="file://localhost/Users/stanleyng/feigenbaum/pdfs/"    . $candidate_druid . ".pdf";
   $pdffile_path="http://${salt_user}:${salt_pw}@salt-dev.stanford.edu/assets/${candidate_druid}/${candidate_druid}.pdf";
 
-  $q_details="select textlen, title, description, tags, notes from urllist where url='$textfile_path'";
-  $result_details = mysql_query($q_details);
-  $row_details    = mysql_fetch_assoc($result_details);
-  $doclen  = $row_details['textlen'];
-  $title   = $row_details['title'];
-  $summary = $row_details['description'];
-  $tags    = $row_details['tags'];
-  $notes   = $row_details['notes'];
+  $q_details="select textlen, title, description, tags, notes, originator, date, document_type, document_subtype, containing_work, corporate_entity, number, extent, language, abstract, EAF_hard_drive_file_name from urllist where url='$textfile_path'";
+  $result_details   = mysql_query($q_details);
+  $row_details      = mysql_fetch_assoc($result_details);
+
+  $doclen           = $row_details['textlen'];
+  $title            = $row_details['title'];
+  $summary          = $row_details['description'];
+  $tags             = $row_details['tags'];
+  $notes            = $row_details['notes'];
+  $originator       = $row_details['originator'];
+  $date             = $row_details['date'];
+  $document_type    = $row_details['document_type'];
+  $document_subtype = $row_details['document_subtype'];
+  $containing_work  = $row_details['containing_work'];
+  $corporate_entity = $row_details['corporate_entity'];
+  $number           = $row_details['number'];
+  $extent           = $row_details['extent'];
+  $language         = $row_details['language'];
+  $abstract         = $row_details['abstract'];
+  $EAF_hard_drive_file_name = $row_details['EAF_hard_drive_file_name'];
 
   $json_row = array(
-       'pdf'     => "$pdffile_path",
-       'title'   => "$title",
-       'summary' => "$summary",
-       'druid'   => "$candidate_druid",
-       'doclen'  => "$doclen",
-       'cos_sim' => "$similarity",
-       'tags'    => "$tags",
-       'notes'   => "$notes");
+    'pdf'              => "$pdffile_path",
+    'title'            => "$title",
+    'summary'          => "$summary",
+    'druid'            => "$candidate_druid",
+    'doclen'           => "$doclen",
+    'cos_sim'          => "$similarity",
+    'tags'             => "$tags",
+    'notes'            => "$notes",
+    'originator'       => "$originator",
+    'date'             => "$date",
+    'document_type'    => "$document_type",
+    'document_subtype' => "$document_subtype",
+    'containing_work'  => "$containing_work",
+    'corporate_entity' => "$corporate_entity",
+    'number'           => "$number",
+    'extent'           => "$extent",
+    'language'         => "$language",
+    'abstract'         => "$abstract",
+    'EAF_hard_drive_file_name' => "$EAF_hard_drive_file_name");
 
   $return_array []= $json_row;
 }
