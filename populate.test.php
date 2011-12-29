@@ -1,12 +1,16 @@
 <?php
+die();
+//this was modified to overwrite originator field even if it was blank in json
+
 require_once("mysql.php");
 mysql_select_db("ainews") or die ("Unable to select db: " . mysql_error());
 foreach (array("all_1st_accession_20111209.json", "all_2nd_accession_20111209.json") as $jsonfile) {
-  print "$jsonfile ...\n";
+  //echo "\n$jsonfile ...";
+  //continue;
   $fp = fopen($jsonfile,'r');
   $count = 0;
   while (($line_of_json = fgets($fp)) !== false) {
-    print $line_of_json;
+    //print $line_of_json;
     
     $arr = json_decode($line_of_json);
     //var_dump($arr);
@@ -18,9 +22,12 @@ foreach (array("all_1st_accession_20111209.json", "all_2nd_accession_20111209.js
       continue;
     } else {
       $druid = $matches[0];
+      //echo "$druid\n";
     }
+    //continue;
 
     $url = "texts/${druid}.txt";
+    /****
 
     // Store notes if any
     $notes = '';
@@ -52,7 +59,9 @@ foreach (array("all_1st_accession_20111209.json", "all_2nd_accession_20111209.js
       $result = mysql_query($q);
       if (!$result) die ("DB write failed 11: " . mysql_error());
     }
+    *********/
 
+    /***********
     // Do somthing if we found originator
     $originator = '';
     if ($arr->originator) {
@@ -62,7 +71,19 @@ foreach (array("all_1st_accession_20111209.json", "all_2nd_accession_20111209.js
       $result = mysql_query($q);
       if (!$result) die ("DB write failed 11: " . mysql_error());
     }
+    ***********/
 
+    $originator = '';
+    if ($arr->originator) {
+      $originator = implode("; ",$arr->originator);
+    }
+    $safe_originator=mysql_real_escape_string($originator);
+    $q = "update urllist set originator = '$safe_originator' where url = '$url'";
+    $result = mysql_query($q);
+    if (!$result) die ("DB write failed 11: " . mysql_error());
+
+
+    /***********
     // Do somthing if we found date
     if ($arr->date) {
       $date=$arr->date;
@@ -152,7 +173,8 @@ foreach (array("all_1st_accession_20111209.json", "all_2nd_accession_20111209.js
       $result = mysql_query($q);
       if (!$result) die ("DB write failed 11: " . mysql_error());
     }
-  
+    ***********/
+
     $count++;
   }
   fclose ($fp);
