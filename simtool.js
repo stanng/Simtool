@@ -4,7 +4,7 @@ $(function(){
     $("#submit-main-druid")
       .click(function () {
 	       var druid = $("#main-druid-entry").val();
-	       var howmany = 35;  //return 35 druids for now... FIXME
+	       var howmany = 100;  //return 35 druids for now... FIXME
 	       __nav("submit",druid);
 	       refresh_rows(druid, howmany);
 	     });
@@ -12,7 +12,7 @@ $(function(){
     $("#navigate-back")
       .click(function(){
 	       var druid = __nav("back",false);
-	       var howmany = 35;
+	       var howmany = 100;
 	       if (druid === false) {
 		 $("#main-druid-entry").val("");
 	       } else {
@@ -24,7 +24,7 @@ $(function(){
     $("#navigate-forward")
       .click(function(){
 	       var druid = __nav("forward",false);
-	       var howmany = 35;
+	       var howmany = 100;
 	       if (druid === false) {
 		 $("#main-druid-entry").val("");
 	       } else {
@@ -78,10 +78,11 @@ function refresh_tags() {
 }
 
 function generate_tags(data) {
-  $("#tags-cloud").html("");
+  $("#tags-cloud").html("<div></div>");
+  $("#tags-cloud div").css({position:'fixed',background:"#f0f0f0",top:'0',bottom:'0',overflow:'auto'});
   for (i = 0; i < data.length; i++){
-    $("#tags-cloud")
-      .append($('<span style="background:beige;potition:relative;float:left;margin:4px;border:1px black solid;padding:3px;"></span>')
+    $("#tags-cloud div")
+      .append($('<span></span>')
 	      .html(data[i]));
   }
 }
@@ -103,16 +104,17 @@ function generate_rows(data) {
     var this_pdf = data[i].pdf;
     
     var tr = $("<tr/>");    
-    var make_new_center_button = $('<td valign="top"> <input type="button" class="make-new-center" value="NEW" /> </td>')
+
+    var make_new_center_button = $('<button class="make-new-center" ><img src="reload_icon&48.png" width="16px"></img></button>')
       .click(function(){
 	       var druid = $(this)
-		 .parent()
+		 .parent().parent() //a little hacky: FIXME
 		 .find(".display-druid")
 		 .html();
+	       alert(druid);
 	       $("#main-druid-entry").val(druid);
 	       $("#submit-main-druid").click();
 	     });
-    tr.append(make_new_center_button);
     
     var pdf_button = $('<td valign="top"> <input type="button" class="show-pdf" value="PDF" /> </td>')
       .click(function (){
@@ -129,14 +131,24 @@ function generate_rows(data) {
 	     function () {$("div",this).hide()});
     $("div", summary_button)
       .css({'position':'absolute','width':'300px','z-index':'10','background':'beige'})
-      .html(data[i].summary)
+      .html(data[i].zotero_key+"--"+data[i].summary)
       .hide();
     tr.append(summary_button);
     
-    tr.append($('<td valign="top"> <span class="display-druid" >'+data[i].druid+'</span></td>'));
+    var td = $('<td valign="top"></td>');
+    td.append($('<span class="display-druid" >'+data[i].druid+'</span>'));
+    td.append($('<br/>'));
+    td.append(pdf_button);
+    td.append(summary_button);
+    tr.append(td);
+
     tr.append($('<td valign="top"> <span class="display-doclen" >'+data[i].doclen+'</span></td>'));
-    tr.append($('<td valign="top"> <span class="display-cos-sim" >'+Math.round(1000*data[i].cos_sim)/1000+'</span></td>'));
-    
+
+    var td = $('<td valign="top"></td>');
+    td.append($('<span class="display-cos-sim" >'+Math.round(1000*data[i].cos_sim)/1000+'</span>'));
+    td.append($('<br/>'));
+    td.append(make_new_center_button);    
+    tr.append(td);
 
     var metadata_field = $('<td valign="top"> <textarea></textarea></td>')
       $("textarea", metadata_field).val(format_metadata(data[i]))

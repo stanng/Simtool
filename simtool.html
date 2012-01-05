@@ -3,6 +3,16 @@
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" ></script>
 <script type="text/javascript" src="simtool.js" ></script>
 <script type="text/javascript" src="util.js" ></script>
+<style type="text/css">
+#tags-cloud span {
+    background:white;
+    postition:relative;
+    float:left;
+    margin:1px;
+    border:1px black solid;
+    padding:1px;
+}
+</style>
 
 </head>
 <body>
@@ -15,34 +25,26 @@ ENTER DRUID:
 <br/>
 <br/>
 
-<table border="5"><tr><td valign="top">
-
-<table  border="1">
-<thead>
-<tr>
-<th>NEW</th>
-<th>PDF</th>
-<th>SUM</th>
-<th>DRUID</th>
-<th>LEN</th>
-<th>COS-SIM</th>
-<th>METADATA</th>
-<th>TAGS</th>
-<th>NOTES</th>
-</thead>
-<tbody id="data-tbody">
-</tbody>
+<table border="0">
+  <tr>
+    <td valign="top">
+      <table  border="1">
+        <thead>
+          <tr>
+	    <th>DRUID</th>
+	    <th>wds</th>
+	    <th>COS</th>
+	    <th>METADATA</th>
+	    <th>TAGS</th>
+	    <th>NOTES</th>
+	</thead>
+	<tbody id="data-tbody">
+	</tbody>
+      </table>
+    </td>
+    <td id="tags-cloud" border=0 valign="top">
+    </td>
+  </tr>
 </table>
-
-</td><td id="tags-cloud" valign="top">
-
-<span style="potition:relative;float:left;margin:5px;border:1px black solid;padding:3px;"> &nbsp;&nbsp;&nbsp;&nbsp;</span>
-<span style="potition:relative;float:left;margin:5px;border:1px black solid;padding:3px;"> &nbsp;&nbsp;&nbsp;&nbsp;</span>
-<span style="potition:relative;float:left;margin:5px;border:1px black solid;padding:3px;"> &nbsp;&nbsp;&nbsp;&nbsp;</span>
-<span style="potition:relative;float:left;margin:5px;border:1px black solid;padding:3px;"> &nbsp;&nbsp;&nbsp;&nbsp;</span>
-<span style="potition:relative;float:left;margin:5px;border:1px black solid;padding:3px;"> &nbsp;&nbsp;&nbsp;&nbsp;</span>
-
-
-</td></tr></table>
 </body>
 </html>

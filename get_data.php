@@ -29,7 +29,7 @@ while ($row = mysql_fetch_assoc($result)){
   //$pdffile_path="file://localhost/Users/stanleyng/feigenbaum/pdfs/"    . $candidate_druid . ".pdf";
   $pdffile_path="http://${salt_user}:${salt_pw}@salt-dev.stanford.edu/assets/${candidate_druid}/${candidate_druid}.pdf";
 
-  $q_details="select textlen, title, description, tags, notes, originator, date, document_type, document_subtype, containing_work, corporate_entity, number, extent, language, abstract, EAF_hard_drive_file_name from urllist where url='$textfile_path'";
+  $q_details="select textlen, title, description, tags, notes, originator, date, document_type, document_subtype, containing_work, corporate_entity, number, extent, language, abstract, EAF_hard_drive_file_name, zotero_key from urllist where url='$textfile_path'";
   $result_details   = mysql_query($q_details);
   $row_details      = mysql_fetch_assoc($result_details);
 
@@ -49,6 +49,7 @@ while ($row = mysql_fetch_assoc($result)){
   $language         = $row_details['language'];
   $abstract         = $row_details['abstract'];
   $EAF_hard_drive_file_name = $row_details['EAF_hard_drive_file_name'];
+  $zotero_key = $row_details['zotero_key'];
 
   $json_row = array(
     'pdf'              => "$pdffile_path",
@@ -69,7 +70,8 @@ while ($row = mysql_fetch_assoc($result)){
     'extent'           => "$extent",
     'language'         => "$language",
     'abstract'         => "$abstract",
-    'EAF_hard_drive_file_name' => "$EAF_hard_drive_file_name");
+    'EAF_hard_drive_file_name' => "$EAF_hard_drive_file_name",
+    'zotero_key' => "$zotero_key");
 
   $return_array []= $json_row;
 }

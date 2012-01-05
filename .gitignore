@@ -4,3 +4,4 @@ RCS
 *.json
 *#
 *~
+*.gzip
