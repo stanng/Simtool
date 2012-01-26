@@ -1,74 +1,66 @@
 <?php
-require_once './config.php'; //library credentials
-
 require_once './build/libZoteroSingle.php';
-//public function __construct($libraryType = null, $libraryID = 'me', $libraryUrlIdentifier = null, 
-//$apiKey = null, $baseWebsiteUrl="http://www.zotero.org", $cachettl=0)
 
-$userID = '25950'; //'Desired Types...'
-$userSlug = '25950';
-
-//$userID = '34657'; //1st Accession
-//$userSlug = '34657';
-
-$library = new Zotero_Library($libraryType, $userID, $userSlug, $apiKey);
-//print_r($library);
-//die();
+$libraryType = 'group'; //user or group
+$lib1ID = '34657'; //1st accession
+$lib1Slug = '34657';
+$lib2ID = '34658'; //2nd accession
+$lib2Slug = '34658';
+$apiKey = 'gIuRNxwnnnBfesL11AYw6T9Z';
 
 
-//get some tags
-/*
-$tags = $library->fetchTags(array('limit'=>5, 'order'=>'title', 'sort'=>'desc'));
-//var_dump($tags);
-foreach($tags as $tag){
-    if($tag->numItems > 0){
-        echo $tag->name . " - " . $tag->numItems . "\n";
-    }
-    else{
-        echo $tag->name . " - has no items\n"; 
-    }
-}
+//for testing use this:
+$libraryID = '25950'; //'Desired Types...'
+$librarySlug = '25950';
 
-//die();
-*/
-
-//get groups the key has access to
-//need more complete groups information in normal responses before this is useful
-//but for now it can get IDs at least
-
-//$r = $library->getAccessibleGroups($userID);
-//print_r($r);
-//var_dump($r);die;
-
-//get permissions for the key
-//$permissions = $library->getKeyPermissions();
-//print_r($permissions);
-//die();
-
-//load some existing items
-/*
-$items = $library->loadItemsTop(array('limit'=>70));
-//var_dump($items);
-foreach($items as $item){
- echo "----item:" . $item->content . "\n\n";
-}
-//print_r($items);
+$library = new Zotero_Library($libraryType, $libraryID, $librarySlug, $apiKey);
+$itemKey = '5327VG8I';
+$ret = get_item($library,$itemKey);
+var_dump($ret);
 die();
+//given 
+
+function get_item($library, $itemKey) {
+  $items = $library->loadItems(array('itemKey'=>$itemKey));
+  if (!$items) return false;
+  $existingItem = $items[0];
+  preg_match('/.*?>([^<]*)/',$existingItem->content, $match);
+  $doc_json = json_decode($match[1]);
+  
+  $items = $library->loadItems(array('itemKey'=>$itemKey,'target'=>'children'));
+  $doc_json->notes = array();
+  foreach ($items as $item) {
+    preg_match('/.*?>([^<]*)/',$item->content, $match);
+    $note_json = json_decode($match[1]);
+    $doc_json->notes []= strip_tags($note_json->note);
+  }
+  return $doc_json;
+}
+die();
+/*
+" \u0022
+' \u0027
+& \u0026
+< \u003c
+> \u003e
 */
 
-/*
-//load the items currently in the trash
-$items = $library->loadTrashedItems(array('limit'=>10));
-foreach($items as $item){
-    echo "Trashed item with title: " . $item->get('title') . "\n";
-    //echo "now deleting item \n";
-    //$library->deleteItem($item);
-}
-*/
+
+//(1) need to get metada, tags and notes from a given key;
+//do this for all 100 items on the simtool page and update simtool db and webpage live is needed
+// we can replace this with a zotero pluging updater later...
+
+//(2) need to update zotero with tags, notes and metadata on each tag, note, or metadata update from simtool
+//make the call every time the user leves the tet area with a change.-- live update! 
+
+//function get_all_tags($lib)
+//this function can't work easily, since there is a 100 item limit...
 
 //create a new item of type book
 //echo "Asdf";
 /*
+
+
 $newItem = $library->getTemplateItem('book');
 //print_r($newItem);
 
@@ -90,10 +82,6 @@ echo "Item created\n\n";
 
 //$existingItem = new Zotero_Item($createItemResponse->getBody());
 //echo "GET BODY==";print_r($createItemResponse->getBody());
-
-$items = $library->loadItems(array('itemKey'=>'5327VG8I'));
-$existingItem = $items[0];
-echo "EXISTING ITEM==";print_r($existingItem);
 
 //add child note
 $newNoteItem = $library->getTemplateItem('note');

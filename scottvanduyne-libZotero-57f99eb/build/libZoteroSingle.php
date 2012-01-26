@@ -2628,7 +2628,7 @@ class Zotero_Library
     public function fetchTags($params){
         $aparams = array_merge(array('target'=>'tags', 'content'=>'json', 'limit'=>50), $params);
         $reqUrl = $this->apiRequestUrl($aparams) . $this->apiQueryString($aparams);
-        
+        var_dump($reqUrl);
         $response = $this->_request($reqUrl, 'GET');
         if($response->isError()){
             libZoteroDebug( $response->getMessage() . "\n" );

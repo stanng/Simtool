@@ -111,7 +111,7 @@ function generate_rows(data) {
 		 .parent().parent() //a little hacky: FIXME
 		 .find(".display-druid")
 		 .html();
-	       alert(druid);
+	       //alert(druid);
 	       $("#main-druid-entry").val(druid);
 	       $("#submit-main-druid").click();
 	     });
