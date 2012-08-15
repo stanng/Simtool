@@ -1,4 +1,4 @@
-<?php
+?php
 require_once './config.php'; //library credentials
 
 require_once './build/libZoteroSingle.php';
@@ -93,7 +93,7 @@ echo "Item created\n\n";
 
 $items = $library->loadItems(array('itemKey'=>'5327VG8I'));
 $existingItem = $items[0];
-echo "EXISTING ITEM==";print_r($existingItem);
+//echo "EXISTING ITEM==";print_r($existingItem);
 
 //add child note
 $newNoteItem = $library->getTemplateItem('note');
@@ -108,15 +108,16 @@ if($addNoteResponse->isError()){
 }
 echo "added child note\n";
 
-/*
+
 $existingItem->set('date', '2011');
 //$existingItem->set('deleted', 1);
 $updateItemResponse = $library->writeUpdatedItem($existingItem);
+echo $updateItemResponse;
 if($updateItemResponse->isError()){
     die("Error updating Zotero item\n\n");
 }
 echo "Item updated\n\n";
-*/
+
 
 //$items = $library->loadItems(array('itemKey'=>'A937MNXH'));
 //$items = $library->loadItems(array('itemKey'=>'5327VG8I'));

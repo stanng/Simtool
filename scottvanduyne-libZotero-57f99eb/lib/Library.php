@@ -283,7 +283,7 @@ class Zotero_Library
                     break;
             }
         }
-        //print "apiRequestUrl: " . $url . "\n";
+        print "apiRequestUrl: " . $url . "\n";
         return $url;
     }
     
@@ -345,7 +345,7 @@ class Zotero_Library
             }
         }
         $queryString .= implode('&', $queryParamsArray);
-        //print "apiQueryString: " . $queryString . "\n";
+        print "apiQueryString: " . $queryString . "\n";
         return $queryString;
     }
     
