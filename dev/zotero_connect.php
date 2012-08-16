@@ -46,23 +46,40 @@ case 'read':
   if (!$itemKey) die("{error: \"No itemKey for druid:$druid\"}");
   $z = get_zotero_by_itemKey($itemKey,$accession);
   $m = zotero_to_lowood($z['json']);
-  echo json_encode(array('json'=>$m,
+  if (isset($m['error'])) {
+    echo json_encode(array('json'=>$m,
+			 'druid'=>$druid,
+			 'itemKey'=>$itemKey,
+			 'accession'=>$accession,
+			 'etag'=>'0'));
+  } else {
+    echo json_encode(array('json'=>$m,
 			 'druid'=>$druid,
 			 'itemKey'=>$itemKey,
 			 'accession'=>$accession,
 			 'etag'=>$z['etag']));
+  }
   break;
 
 case 'write':
-  $m = json_decode($json, true);
-  $z = lowood_to_zotero($m);  //objct
-  $new_z = write_back_to_zotero($itemKey,$accession,$z,$etag);
-  $new_m = zotero_to_lowood($new_z['json']);
-  echo json_encode(array('json'=>$new_m,
-			 'druid'=>$druid,
-			 'itemKey'=>$itemKey,
-			 'accession'=>$accession,
-			 'etag'=>$new_z['etag']));
+  if ($etag == '0') {
+    $m = array('error'=>"ERROR no etag",'document_type' => 'manuscript');
+    echo json_encode(array('json'=>$m,
+			   'druid'=>$druid,
+			   'itemKey'=>$itemKey,
+			   'accession'=>$accession,
+			   'etag'=>"0"));
+  } else {
+    $m = $json;
+    $z = lowood_to_zotero($m);  //objct
+    $new_z = write_back_to_zotero($itemKey,$accession,$z,$etag);
+    $new_m = zotero_to_lowood($new_z['json']);
+    echo json_encode(array('json'=>$new_m,
+			   'druid'=>$druid,
+			   'itemKey'=>$itemKey,
+			   'accession'=>$accession,
+			   'etag'=>$new_z['etag']));
+  }
   break;
 
 case 'readnotes':
@@ -361,7 +378,11 @@ function zotero_to_lowood($z) {
 				'journalArticle',
 				'email');
 
-  if (!in_array($z->itemType,$supported_item_types)) return false;
+  if (!in_array($m['document_type'],$supported_item_types)) {
+    $m['error'] = "\"".$m['document_type']."\" type not supported. Please change in Zotero.";
+    $m['document_type'] = 'manuscript';
+    return $m;
+  };
 
   //standard fields on all docs
   $m['url'] = $z->url;
@@ -564,6 +585,7 @@ function zotero_to_lowood($z) {
   default:
     break;
   }
+
   return $m;
 }
 
@@ -597,7 +619,7 @@ function lowood_to_zotero($m) {
 				'journalArticle',
 				'email');
 
-  if (!in_array($m['document_type'],$supported_item_types)) die("bad document_type:".print_r($m,1));
+  if (!in_array($m['document_type'],$supported_item_types)) return false;
   
   $z = (object) null;
   //standard fields on all docs

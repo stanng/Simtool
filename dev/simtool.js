@@ -6,7 +6,7 @@ $(function(){
       return false;
     }
 
-    var howmany = 15; //up to 100 possible, but a drag on zotero cloud...
+    var howmany = 2; //up to 100 possible, but a drag on zotero cloud...
     //     could throttle zotero calls...FIXME see zotero_connect.php calls below
     $("#submit-main-druid")
       .click(function () {
@@ -473,11 +473,12 @@ function get_pdf_nameDEPRECATED(druid) {
 		    accession: accession,
 		    etag: etag,
 		    druid: druid,
-		    json: JSON.stringify(m)};
+		    json: m};
   //alert("Write:"+dump(write_data));
   $("#druid-"+druid).find('.metadata-textarea').hide('fast');
   $("#druid-"+druid).find('.tags-textarea').hide('fast');
   $("#druid-"+druid).find('.document-type-pulldown').hide('fast');
+  //alert(dump(write_data));
   $.ajax({
     url: "zotero_connect.php", 
 	data: write_data,
@@ -553,11 +554,14 @@ function confirm(msg) {
 }
 
 function format_tags(data) {
-  var tag_array = [];
-  for (var i=0; i<data.tags.length; i++) {
-    tag_array.push(data.tags[i].tag);
+  if (typeof data.tags != 'undefined') {
+    var tag_array = [];
+    for (var i=0; i<data.tags.length; i++) {
+      tag_array.push(data.tags[i].tag);
+    }
+    return tag_array.join(', ');
   }
-  return tag_array.join(', ');
+  return '';
 }
 
 function format_archive_fields(data) {
@@ -576,6 +580,10 @@ function format_archive_fields(data) {
   return text;
 }
 function format_metadata(data) {
+  alert(dump(data));  
+  if (typeof data.error != 'undefined') {
+    return {document_type: 'manuscript', text:data.error};
+  }
   var field_values = [];
   var field_names = [];
   field_names.push("[TITLE]");
