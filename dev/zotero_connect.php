@@ -3,6 +3,7 @@
   @ini_set('log_errors','On'); // enable or disable php error logging (use 'On' or 'Off')
   @ini_set('display_errors','Off'); // enable or disable public display of errors (use 'On' or 'Off')
   @ini_set('error_log','error_log.log'); // path to server-writable log file
+
   //usage: get_eaf_metadata.php?mode=read&druid=ASDF
   // returns json object including fields: druid, itemKey, accession, json, etag 
   //usage: get_eaf_metadata.php?mode=write&druid=ASDF&etag=1234&json={}

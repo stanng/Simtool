@@ -264,7 +264,7 @@ function refresh_row_notes (data) {
     .change(function(){
 	save_notes($(tr))
 	  })
-    .show();
+    .show('fast');
 }
 
 
@@ -291,7 +291,7 @@ function refresh_simtool_row_data(data) {
     .change(function(){
 	save_metadata($(tr))
 	  })
-    .show();
+    .show('fast');
 
   //open text fields	
   $(tr).find('.metadata-textarea')
@@ -300,7 +300,7 @@ function refresh_simtool_row_data(data) {
     .change(function(){
 	save_metadata($(tr))
 	  })
-    .show();
+    .show('fast');
   //
   var formatted_tags = format_tags(data.json);
   $(tr).find('.tags-textarea')
@@ -309,7 +309,7 @@ function refresh_simtool_row_data(data) {
     .change(function(){
 	save_metadata($(tr));
       }).
-    show();
+    show('fast');
 }
 
 function get_pdf_name(druid) {
@@ -475,9 +475,9 @@ function get_pdf_nameDEPRECATED(druid) {
 		    druid: druid,
 		    json: JSON.stringify(m)};
   //alert("Write:"+dump(write_data));
-  $("#druid-"+druid).find('.metadata-textarea').hide();
-  $("#druid-"+druid).find('.tags-textarea').hide();
-  $("#druid-"+druid).find('.document-type-pulldown').hide();
+  $("#druid-"+druid).find('.metadata-textarea').hide('fast');
+  $("#druid-"+druid).find('.tags-textarea').hide('fast');
+  $("#druid-"+druid).find('.document-type-pulldown').hide('fast');
   $.ajax({
     url: "zotero_connect.php", 
 	data: write_data,
@@ -538,7 +538,7 @@ function save_notes(tr) {
 		      'itemKey': itemKey,
 		      'accession': accession};
     //alert("WRITING..."+dump(write_data));
-    $("#druid-"+druid).find('.notes-textarea').hide();
+    $("#druid-"+druid).find('.notes-textarea').hide('fast');
     $.ajax({
       url: "zotero_connect.php",
 	  data: write_data,
