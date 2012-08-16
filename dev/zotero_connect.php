@@ -1,8 +1,8 @@
 <?php
   // log php errors
-  //@ini_set('log_errors','On'); // enable or disable php error logging (use 'On' or 'Off')
-  //@ini_set('display_errors','Off'); // enable or disable public display of errors (use 'On' or 'Off')
-  //@ini_set('error_log','/home/simtool/public_html/dev/error_log.log'); // path to server-writable log file
+  @ini_set('log_errors','On'); // enable or disable php error logging (use 'On' or 'Off')
+  @ini_set('display_errors','Off'); // enable or disable public display of errors (use 'On' or 'Off')
+  @ini_set('error_log','error_log.log'); // path to server-writable log file
   //usage: get_eaf_metadata.php?mode=read&druid=ASDF
   // returns json object including fields: druid, itemKey, accession, json, etag 
   //usage: get_eaf_metadata.php?mode=write&druid=ASDF&etag=1234&json={}
@@ -26,6 +26,18 @@ $note_etags = $_REQUEST['note-etags'];
 $note_json = $_REQUEST['note-json'];
 
 switch ($mode) {
+case 'get-all-tags':
+  $all_tags = array();
+  for ($accession = 1; $accession <= 3; $accession++) {
+    $tags = get_all_tags_from_accession($accession);
+    $all_tags = array_merge($all_tags,$tags);
+  }
+    $all_tags = array_unique($all_tags);
+    usort($all_tags, strcasecmp);
+
+  echo json_encode($all_tags);  
+  break;
+
 case 'read':
   $temp = get_itemKey_from_druid($druid);
   $itemKey = $temp['itemKey'];
@@ -39,6 +51,7 @@ case 'read':
 			 'accession'=>$accession,
 			 'etag'=>$z['etag']));
   break;
+
 case 'write':
   $m = json_decode($json, true);
   $z = lowood_to_zotero($m);  //objct
@@ -66,15 +79,17 @@ case 'writenotes':
   if (!is_array($note_json)) $note_json = json_decode($note_json);
 
   //add new notes, delete old notes, and read new content and return
-  echo "{'qwer':'qwer'}";
-die();  
-  $return = add_notes_to_itemKey($itemKey,$accession,$note_json);
-  echo $return;
-  die();
+  $notes = add_notes_to_itemKey($itemKey,$accession,$note_json);
+  echo json_encode(array('druid'=>$druid, 'notes'=>$notes));
+  //$x = array();
   //delete old:
-  for ($i = 0; $i < count($etags); $i++) {
-    //delete_zotero_item($itemKeys[$i],$etags[$i]);
+  for ($i = 0; $i < count($note_etags); $i++) {
+    $delete_info = delete_zotero_item($note_itemKeys[$i],$accession,$note_etags[$i]);
+    //$x []= array('etag'=>$note_etags[$i],'itemKey'=>$note_itemKeys[$i],"item$i" => $return);
   }
+
+  die();
+  
   $notes = get_zotero_notes_by_itemKey($itemKey,$accession);
   echo json_encode($notes);
   break;
@@ -87,32 +102,53 @@ default:
 die();
 
 
-/*function delete_zotero_item($itemKey,$etag) {
-  $ch = curl_init();
-  $url = "https://api.zotero.org/users/69335/items/$itemKey?key=gIuRNxwnnnBfesL11AYw6T9Z";
-  $headers = array(
-  "If-Match: \"$etag\"",
-  "Expect: ");  //this is to get rid of the bogus "Expect: 100-continue"
-  
-  curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-  curl_setopt($ch, CURLOPT_URL, $url);
-  curl_setopt($ch, CURLOPT_DELETE, true);
-  //for debug:
-  curl_setopt($ch, CURLIOPT_HEADER, true);
-  curl_setopt($ch, CURLOPT_VERBOSE, true);
-  
-  $output = curl_exec($ch);
-  curl_close($ch);
-}
-*/
-function add_notes_to_itemKey($itemKey,$accession,$items) {
+function delete_zotero_item($itemKey,$accession,$etag) {
   $libs = array(null,34657,34658,71904);
   $lib = $libs[$accession];
   $privateKey = "ekNP007RTJDaKmi4olmXsKaj"; 
-  
+  //  return $accession;
+
   $ch = curl_init();
-  $url = "https://api.zotero.org/groups/$lib/items/$itemKey/children?key=gIuRNxwnnnBfesL11AYw6T9Z";
-  $data_string = json_encode(array('items'=>$items));
+  $url = "https://api.zotero.org/groups/$lib/items/$itemKey?key=$privateKey";
+  $headers = array(
+		   "If-Match: \"$etag\"");
+
+  //  "Expect: ");  
+  //this is to get rid of the bogus "Expect: 100-continue" (actually this is only needed on PUT?)
+  
+  curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+  curl_setopt($ch, CURLOPT_URL, $url);
+  //curl_setopt($ch, CURLOPT_DELETE, true); //this doesn't work for some reason...
+  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+  //for debug:
+  curl_setopt($ch, CURLOPT_HEADER, true);
+  curl_setopt($ch, CURLOPT_VERBOSE, true);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+  $output = curl_exec($ch);
+  curl_close($ch);
+  return $output;
+}
+
+function add_notes_to_itemKey($itemKey,$accession,$items) {
+
+  $libs = array(null,34657,34658,71904);
+  $lib = $libs[$accession];
+  $privateKey = "ekNP007RTJDaKmi4olmXsKaj"; 
+
+  //return note text to html (convent \n's to <p>'s)
+  $clean_items = array();
+  foreach ($items as $item) {
+    $item['note'] = trim($item['note']);
+    $item['note'] = '<p>'.str_replace("\n",'</p><p>',$item['note']).'</p>'; //replace p element with returns
+    $clean_items []= $item;
+  }  
+
+  $ch = curl_init();
+  $url = "https://api.zotero.org/groups/$lib/items/$itemKey/children?key=$privateKey&content=json";
+  $data_string = json_encode(array('items'=>$clean_items));
+
+  //  echo "data_string:".str_replace("\\\\n","\\n",str_replace("\\\"",'"',json_encode($data_string)));
   
   curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
   curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
@@ -127,11 +163,11 @@ function add_notes_to_itemKey($itemKey,$accession,$items) {
   curl_setopt($ch, CURLOPT_POST, true);
   
   //for debug:
-  curl_setopt($ch, CURLOPT_HEADER, true);
-  curl_setopt($ch, CURLOPT_VERBOSE, true);
+  //curl_setopt($ch, CURLOPT_HEADER, true);
+  //curl_setopt($ch, CURLOPT_VERBOSE, true);
   $output = curl_exec($ch);
   curl_close($ch);
-  return $output;
+  return extract_notes($output);
 }
 
 
@@ -167,9 +203,31 @@ function get_notes_by_parent_itemKey($itemKey, $accession) {
   return $notes;
 }
 
-
-//////////////////////////
-
+function extract_notes($zdata) {
+  $zdata = str_replace('zapi:key','zapikey',$zdata);
+  $xml = simplexml_load_string($zdata);
+  $entries = $xml->entry;
+  $notes = array();
+  foreach ($entries as $entry) {
+    $note_itemKey = (string)$entry->zapikey;
+    $content = $entry->content[0];
+    $json = json_decode($content);
+    $json->note = str_replace('<p>',"\n",$json->note); //replace p element with returns
+    $json->note = str_replace('<\p>',"",$json->note); //replace p element with returns
+    $json->note = strip_tags($json->note); //clear out other html tags
+    $json->note = preg_replace('/[^A-Za-z\d\!\@\#\$\%\^\&\*\(\)\{\}\[\]\;\:\'\"\,\.\`\~\<\>\/\?\n]+/'," ",$json->note); //normalize spaces and non printing characters
+    $json->note = preg_replace('/[\s\n]*\n[\s\n]*/',"\n  ",$json->note); //make all line gaps one linefeed
+    $json->note = trim($json->note); 
+    
+    $pat = '/.*zapi:etag="(.*?)"/';
+    preg_match($pat,$content->asXML(),$match);
+    
+    $etag = $match[1];
+    $notes []= array('itemKey'=>$note_itemKey,'json'=>$json,'etag'=>$etag);
+  }
+  return $notes;
+}
+  
 function convert_druid_to_key_csv_to_array($file) {
   $csv = file_get_contents($file);
   $lines = preg_split('/[\n\r]+/',$csv);
@@ -214,6 +272,28 @@ function get_zotero_by_itemKey($itemKey, $accession) {
   preg_match($pat,$content->asXML(),$match);
   $etag = $match[1];
   return array('json'=>$json,'etag'=>$etag);
+}
+
+function get_all_tags_from_accession($accession) {
+  //note could look at <zapi:numItems>
+
+  //group library group numbers:  1st accession, 2nd accession, 3rd accession
+  $libs = array(null,34657,34658,71904);
+  $lib = $libs[$accession];
+  $privateKey = "ekNP007RTJDaKmi4olmXsKaj"; 
+  
+  $read_url = "https://api.zotero.org/groups/$lib/tags?key=$privateKey&limit=199";
+  $return = file_get_contents($read_url);
+  $xml = simplexml_load_string($return);
+  $entries = $xml->entry;
+  $tags = array();
+  foreach($entries as $entry) {
+    $tags []= (string) $entry->title;
+  }
+  //$pat = '/.*zapi:etag="(.*?)"/';
+  //preg_match($pat,$content->asXML(),$match);
+  //$etag = $match[1];
+  return $tags;//array('json'=>$json,'etag'=>$etag);
 }
 
 function write_back_to_zotero($itemKey,$accession,$obj,$etag) {

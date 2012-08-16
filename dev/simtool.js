@@ -1,7 +1,12 @@
 // -*- C -*-
 
 $(function(){
-    var howmany = 2; //up to 100 possible, but a drag on zotero cloud...
+    if (window.location.toString().search("password=saltworks") < 0) {
+      alert('invalid password');
+      return false;
+    }
+
+    var howmany = 15; //up to 100 possible, but a drag on zotero cloud...
     //     could throttle zotero calls...FIXME see zotero_connect.php calls below
     $("#submit-main-druid")
       .click(function () {
@@ -10,13 +15,14 @@ $(function(){
 	  refresh_rows(druid, howmany);
 	});
     
-    $("#main-druid-entry")
+    /*    $("#main-druid-entry")
       .blur(function () { //trigger submit on blur
   var druid = $("#main-druid-entry").val();
 	  __nav("submit",druid);
 	  refresh_rows(druid, howmany);
 	});
-      /*
+    */
+    /*
       .keyup(function(event){
 	  if(event.keyCode == 13){ //tregger submit on enter
 	    var druid = $("#main-druid-entry").val();
@@ -85,7 +91,8 @@ function __nav(mode,druid) {
 
 function refresh_tags() {
   $.ajax({
-    url: "get_tags.php",
+    url: "zotero_connect.php",
+	data: {mode: 'get-all-tags'},
 	dataType: "json",
 	success: generate_tags
 	});
@@ -102,15 +109,35 @@ function generate_tags(data) {
 }
 
 function refresh_rows(druid,howmany) {
-  var druid = druid.match(/[a-z]{2}\d{3}[a-z]{2}\d{4}/)[0];
-  $.ajax({
-    url: "get_data.php",
-	data: {druid: druid, howmany: howmany},
-	dataType: "json",
-	success: generate_rows
-	});
+  //var druid = druid.match(/[a-z]{2}\d{3}[a-z]{2}\d{4}/)[0];
+  var match = druid.match(/[a-z]{2}\d{3}[a-z]{2}\d{4}/);
+  if (match != null) {
+    druid = match[0];
+    
+    $.ajax({
+      url: "get_data.php",
+	  data: {druid: druid, howmany: howmany},
+	  dataType: "json",
+	  success: generate_rows
+	  });
+  } 
+  else {
+    //try filenames
+    $.ajax({
+      url: "get_druid_from_filename.php",
+	  data: {'filename-text': druid},
+	  dataType: "json",
+	  success: (function (data) {
+	      $.ajax({
+		url: "get_data.php",
+		    data: {druid: data.druid, howmany: howmany},
+		    dataType: "json",
+		    success: generate_rows
+		    });
+	    })
+	  });
+  }
 }
-
 function generate_rows(data) {
   $("#data-tbody").html("");
   for (var i=0; i<data.length; i++) {
@@ -139,19 +166,19 @@ function generate_rows(data) {
     td.append($('<span class="display-druid" >'+data[i].druid+'</span>'));
     td.append($('<br/>'));
     td.append(pdf_button);
-    td.append(summary_display_div);
-    td.append(summary_button);
+    //td.append(summary_display_div);
+    //td.append(summary_button);
     tr.append(td);
 
     //word count cell
-    tr.append($('<td valign="top"> <span class="display-doclen" >'+data[i].doclen+'</span></td>'));
+    //tr.append($('<td valign="top"> <span class="display-doclen" >'+data[i].doclen+'</span></td>'));
     
 
     //cos sim cell
     var make_new_center_button = $('<button class="make-new-center" ><img src="reload_icon&48.png" width="16px"/></button>')
       .click(function(){
 	  var druid = $(this).parents('.document-row').attr('id').substr(6);
-	  alert(druid);
+	  //alert(druid);
 	  $("#main-druid-entry").val(druid);
 	  $("#submit-main-druid").click();
 	});
@@ -222,14 +249,14 @@ function refresh_row_notes (data) {
   var e = $(tr).find('.notes-etag-store');
   var notes_textarea = $(tr).find('.notes-textarea');
   var note_array = [];
-  alert(dump(data));
+  //alert(dump(data));
   
   for(i = 0; i < data.notes.length; i++) {
     $(e).attr('etag'+i,data.notes[i].etag);
     $(e).attr('itemKey'+i,data.notes[i].itemKey);
     note_array.push(data.notes[i].json['note']);
   }
-  alert(dump(note_array));
+  //alert(dump(note_array));
   var notes_text = '[NOTE]'+(note_array.join('\n[NOTE]'));
  $(tr).find('.notes-textarea')
     .text(notes_text)
@@ -475,7 +502,7 @@ function get_pdf_nameDEPRECATED(druid) {
 
 function save_notes(tr) {
   var max_notes = 8;
-  alert("save_notes:"+$(tr).attr('id'));
+  //alert("save_notes:"+$(tr).attr('id'));
   var druid = $(tr).attr('id').substr(6); // druid
   var accession = $(tr).find('.archive-fields-store').attr('accession'); //accession
   var itemKey = $(tr).find('.archive-fields-store').attr('itemKey'); //itemType
@@ -506,17 +533,17 @@ function save_notes(tr) {
     var write_data = {'mode': 'writenotes',
 		      'note-itemKeys': itemKeys,
 		      'note-etags': etags,
-		      'note-json': JSON.stringify(note_array),
+		      'note-json': note_array,
 		      'druid': druid,
 		      'itemKey': itemKey,
 		      'accession': accession};
-    alert("WRITING..."+dump(write_data));
+    //alert("WRITING..."+dump(write_data));
     $("#druid-"+druid).find('.notes-textarea').hide();
     $.ajax({
       url: "zotero_connect.php",
 	  data: write_data,
 	  dataType: "json",
-	  success: (function (data) {alert("here:");alert("NOTE_WRITE_RETURN:"+dump(data));})
+	  success: refresh_row_notes
 	  });
   }
 }
