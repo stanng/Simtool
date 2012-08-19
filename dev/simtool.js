@@ -444,11 +444,13 @@ function get_pdf_nameDEPRECATED(druid) {
 
   var raw_tags = tag_string.split(/[,;\n]+/);
   var tags_array = [];
+  alert(dump(tags_array));
   for (var i = 0;i<raw_tags.length;i++) {
     var tag = $.trim(raw_tags[i]);
     if (tag.length == 0) continue;
     tags_array.push({tag:tag});
   }
+
     
   var m = {url:url,
 	   archiveLocation:archiveLocation,
@@ -580,7 +582,7 @@ function format_archive_fields(data) {
   return text;
 }
 function format_metadata(data) {
-  alert(dump(data));  
+  //alert(dump(data));  
   if (typeof data.error != 'undefined') {
     return {document_type: 'manuscript', text:data.error};
   }

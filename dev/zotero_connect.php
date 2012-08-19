@@ -74,6 +74,9 @@ case 'write':
     $z = lowood_to_zotero($m);  //objct
     $new_z = write_back_to_zotero($itemKey,$accession,$z,$etag);
     $new_m = zotero_to_lowood($new_z['json']);
+    if ($new_m === false) {
+      $new_m = array('error'=>"BAD RETURN form Zotero.");
+    }
     echo json_encode(array('json'=>$new_m,
 			   'druid'=>$druid,
 			   'itemKey'=>$itemKey,
@@ -315,6 +318,7 @@ function get_all_tags_from_accession($accession) {
 }
 
 function write_back_to_zotero($itemKey,$accession,$obj,$etag) {
+
   $libs = array(null,34657,34658,71904);
   $lib = $libs[$accession];
   $privateKey = "ekNP007RTJDaKmi4olmXsKaj"; 
@@ -322,10 +326,10 @@ function write_back_to_zotero($itemKey,$accession,$obj,$etag) {
   //create temporary PUT file
   $new_content = json_encode($obj);
 
+
   $putData = tmpfile();
   fwrite($putData,$new_content);
   fseek($putData, 0);
-  
   $ch = curl_init();
   $write_url = "https://api.zotero.org/groups/$lib/items/$itemKey?key=$privateKey";
 
@@ -353,11 +357,15 @@ function write_back_to_zotero($itemKey,$accession,$obj,$etag) {
 
   //return new etag and content
   $xml = simplexml_load_string($return);
+  if ($xml === false) return false;
+
   $content = $xml->content[0];
   $json = json_decode($content);
   $pat = '/.*zapi:etag="(.*?)"/';
   preg_match($pat,$content->asXML(),$match);
+
   $etag = $match[1];
+
   return array('json'=>$json,'etag'=>$etag);
 }
 
