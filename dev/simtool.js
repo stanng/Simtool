@@ -6,7 +6,7 @@ $(function(){
       return false;
     }
 
-    var howmany = 2; //up to 100 possible, but a drag on zotero cloud...
+    var howmany = 25; //up to 100 possible, but a drag on zotero cloud...
     //     could throttle zotero calls...FIXME see zotero_connect.php calls below
     $("#submit-main-druid")
       .click(function () {
@@ -269,7 +269,6 @@ function refresh_row_notes (data) {
 
 
 function refresh_simtool_row_data(data) {
-  //alert("refresh_simtool_row_data:"+dump(data));
   var druid = data.druid;
   var tr = $("#druid-"+druid); 
   
@@ -444,13 +443,12 @@ function get_pdf_nameDEPRECATED(druid) {
 
   var raw_tags = tag_string.split(/[,;\n]+/);
   var tags_array = [];
-  alert(dump(tags_array));
+
   for (var i = 0;i<raw_tags.length;i++) {
     var tag = $.trim(raw_tags[i]);
     if (tag.length == 0) continue;
     tags_array.push({tag:tag});
   }
-
     
   var m = {url:url,
 	   archiveLocation:archiveLocation,
@@ -469,7 +467,8 @@ function get_pdf_nameDEPRECATED(druid) {
 	   language:language,
 	   tags:tags_array
   };
-  //  alert(JSON.stringify(m));
+
+  //alert(JSON.stringify(m));
   var write_data = {mode: 'write',
 		    itemKey: itemKey,
 		    accession: accession,
@@ -484,7 +483,7 @@ function get_pdf_nameDEPRECATED(druid) {
   $.ajax({
     url: "zotero_connect.php", 
 	data: write_data,
-	dataType: "json",
+	dataType: "json",//json
 	success: refresh_simtool_row_data 
 	/*
 	(function(data) {

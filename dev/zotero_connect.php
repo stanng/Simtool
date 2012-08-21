@@ -62,6 +62,7 @@ case 'read':
   break;
 
 case 'write':
+  //echo "this is a test";die();
   if ($etag == '0') {
     $m = array('error'=>"ERROR no etag",'document_type' => 'manuscript');
     echo json_encode(array('json'=>$m,
@@ -286,6 +287,8 @@ function get_zotero_by_itemKey($itemKey, $accession) {
   $read_url = "https://api.zotero.org/groups/$lib/items/$itemKey?key=$privateKey&content=json";
 
   $return = file_get_contents($read_url);
+  //echo json_encode(array("z"=>$return));die();//ASDFASDF
+
   $xml = simplexml_load_string($return);
   $content = $xml->content[0];
   $json = json_decode($content);
@@ -323,9 +326,11 @@ function write_back_to_zotero($itemKey,$accession,$obj,$etag) {
   $lib = $libs[$accession];
   $privateKey = "ekNP007RTJDaKmi4olmXsKaj"; 
 
+  //fix up tags=NULL (needs to be [])
+  if ($obj->tags === null) $obj->tags = array();
+
   //create temporary PUT file
   $new_content = json_encode($obj);
-
 
   $putData = tmpfile();
   fwrite($putData,$new_content);
@@ -347,6 +352,11 @@ function write_back_to_zotero($itemKey,$accession,$obj,$etag) {
   curl_setopt($ch, CURLOPT_INFILE, $putData);
   curl_setopt($ch, CURLOPT_INFILESIZE, strlen($new_content));
   curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);  
+  
+
+  //ASDFASDFASDF
+  //looks like PUT is sending bogus tags data, why? originatos is working?
+
   //for debug:
   //curl_setopt($ch, CURLOPT_HEADER, true);
   //curl_setopt($ch, CURLOPT_VERBOSE, true);
