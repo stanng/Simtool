@@ -6,4 +6,6 @@ RCS
 *~
 *.gzip
 *.gz
+*.sql
+
 
