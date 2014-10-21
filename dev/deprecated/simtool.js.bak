@@ -1,0 +1,498 @@
+// -*- C -*-
+
+$(function(){
+    var howmany = 5; //up to 100 possible, but a drag on zotero cloud...
+    //     could throttle zotero calls...FIXME see zotero_connect.php calls below
+    $("#submit-main-druid")
+      .click(function () {
+	  var druid = $("#main-druid-entry").val();
+	  __nav("submit",druid);
+	  refresh_rows(druid, howmany);
+	});
+    
+    $("#navigate-back")
+      .click(function(){
+	  var druid = __nav("back",false);
+	  if (druid === false) {
+	    $("#main-druid-entry").val("");
+	  } else {
+	    $("#main-druid-entry").val(druid);
+	    refresh_rows(druid, howmany);
+	  }
+	});
+    
+    $("#navigate-forward")
+      .click(function(){
+	  var druid = __nav("forward",false);
+	  if (druid === false) {
+	    $("#main-druid-entry").val("");
+	  } else {
+	    $("#main-druid-entry").val(druid);
+	    refresh_rows(druid, howmany);
+	  }
+	});
+  });
+
+function __nav(mode,druid) {
+  //init static nav history array
+  if (typeof __nav.history == 'undefined') {
+    __nav.history = [];
+    __nav.pointer = -1;
+  }
+  
+  //alert("pointer="+__nav.pointer+"\n"+dump(__nav.history));
+  
+  switch (mode) {
+  case "submit":
+    __nav.pointer++;
+    __nav.history[__nav.pointer] = druid;
+    //truncate "future" history on submit... is this right?
+    //__nav.history.length = __nav.pointer + 1;
+    return druid;
+    break;
+    
+  case "back":
+    __nav.pointer = Math.max(__nav.pointer - 1, -1);
+    if (__nav.pointer < 0) return false;
+    druid = __nav.history[__nav.pointer];
+    return druid;    
+    break;
+    
+  case "forward":
+    __nav.pointer = Math.min(__nav.pointer + 1, __nav.history.length);
+    if (__nav.pointer > __nav.history.length - 1) return false;
+    druid = __nav.history[__nav.pointer];
+    return druid;    
+    break;
+  }
+  return false;
+}
+
+function refresh_tags() {
+  $.ajax({
+    url: "get_tags.php",
+	dataType: "json",
+	success: generate_tags
+	});
+}
+
+function generate_tags(data) {
+  $("#tags-cloud").html("<div></div>");
+  $("#tags-cloud div").css({position:'fixed',background:"#f0f0f0",top:'0',bottom:'0',overflow:'auto'});
+  for (i = 0; i < data.length; i++){
+    $("#tags-cloud div")
+      .append($('<span></span>')
+	      .html(data[i]));
+  }
+}
+
+function refresh_rows(druid,howmany) {
+  var druid = druid.match(/[a-z]{2}\d{3}[a-z]{2}\d{4}/)[0];
+  $.ajax({
+    url: "get_data.php",
+	data: {druid: druid, howmany: howmany},
+	dataType: "json",
+	success: generate_rows
+	});
+}
+
+function generate_rows(data) {
+  $("#data-tbody").html("");
+  for (var i=0; i<data.length; i++) {
+    var this_druid = data[i].druid;
+    var this_pdf = data[i].pdf;
+    
+    var tr = $("<tr/>");    
+    
+    var make_new_center_button = $('<button class="make-new-center" ><img src="reload_icon&48.png" width="16px"></img></button>')
+      .click(function(){
+	  var druid = $(this)
+	    .parent().parent() //a little hacky: FIXME
+	    .find(".display-druid")
+	    .html();
+	       //alert(druid);
+	  $("#main-druid-entry").val(druid);
+	  $("#submit-main-druid").click();
+	});
+    
+    var pdf_button = $('<td valign="top"> <input type="button" class="show-pdf" value="PDF" /> </td>')
+      .click(function (){
+	  var druid = $(this)
+	    .parent()
+	    .find(".display-druid")
+	    .html();
+	  window.open(get_pdf_name(druid),"_blank");
+	});
+    tr.append(pdf_button);
+    
+    var summary_button = $('<td valign="top"> <div/><input type="button" value="SUM" /> </td>')
+      .hover(function () {$("div",this).show()},
+	     function () {$("div",this).hide()});
+    $("div", summary_button)
+      .css({'position':'absolute','width':'300px','z-index':'10','background':'beige'})
+      .html(data[i].zotero_key+"--"+data[i].summary)
+      .hide();
+    tr.append(summary_button);
+    
+    var td = $('<td valign="top"></td>');
+    td.append($('<span class="display-druid" >'+data[i].druid+'</span>'));
+    td.append($('<br/>'));
+    td.append(pdf_button);
+    td.append(summary_button);
+    tr.append(td);
+    
+    tr.append($('<td valign="top"> <span class="display-doclen" >'+data[i].doclen+'</span></td>'));
+    
+    var td = $('<td valign="top"></td>');
+    td.append($('<span class="display-cos-sim" >'+Math.round(1000*data[i].cos_sim)/1000+'</span>'));
+    td.append($('<br/>'));
+    td.append(make_new_center_button);    
+    tr.append(td);
+    
+    var metadata_field = $('<td id="metadata_cell_'+this_druid+'" valign="top"> <select style="color:darkblue;"> <option value="book"> Book </option>  <option value="bookSection"> Book Section </option>  <option value="computerProgram"> Computer Program </option>  <option value="conferencePaper"> Conference Paper </option>  <option value="email"> Email </option>  <option value="journalArticle"> Journal Article </option>  <option value="letter"> Letter </option>  <option value="manuscript"> Manuscript </option>  <option value="report"> Report </option><option value="thesis"> Thesis </option></select><br/><textarea></textarea><div style="display:none;"class="hidden">lkjlkjlkj</div></td>');
+    tr.append(metadata_field);
+
+    var tags_field = $('<td valign="top"> <textarea></textarea></td>');
+    tr.append(tags_field);
+    
+    //LOAD METADATA AND TAGS FROM ZOTERO
+    $.ajax({
+      url: "zotero_connect.php", 
+     	  context: metadata_field, 
+     	  data: {mode: 'read', druid: this_druid}, 
+	  dataType: "json",
+	  success: (function(data) {
+	      var formatted_archive_fields = format_archive_fields(data.json);
+	      var formatted_metadata = format_metadata(data.json);
+	      var formatted_tags = format_tags(data.json);
+	      $("div.hidden", this) //document_type pull down
+		.text(formatted_archive_fields);
+	      $("select", this) //document_type pull down
+		.val(formatted_metadata.document_type)
+		.attr({accession:data.accession, //storing zotero record info needed for edit
+		      itemKey:data.itemKey,
+		      etag:data.etag}); 
+	      $("textarea", this)
+		.val(formatted_metadata.text)
+		.change(function(){
+		    var druid = $(this)
+		      .parent() //td
+		      .parent() //tr
+		      .find(".display-druid")
+		      .html();
+		    //FIXME... save metadata?
+		    save_metadata($(this).parent().parent().parent(),
+				  $(this).parent().find('select').attr('accession'), //accession
+				  $(this).parent().find('select').attr('itemKey'), //itemType
+				  $(this).parent().find('select').attr('etag'), //etag
+				  $(this).parent().find('select').val(), //document_type
+				  $(this).val(), //main metadata
+				  $(this).parent().next().find('textarea').val(), //tag string
+				  $(this).parent().find('div.hidden').text()); //archive fields
+		  });
+	      $(this)
+		.next()
+		.find('textarea')
+		.val(formatted_tags)
+		.change(function(){
+		    var druid = $(this)
+		      .parent() //td
+		      .parent() //tr
+		      .find(".display-druid")
+		      .html();
+		    save_metadata($(this).parent().parent(),
+				  $(this).parent().prev().find('select').attr('accession'), //accession
+				  $(this).parent().prev().find('select').attr('itemKey'), //itemType
+				  $(this).parent().prev().find('select').attr('etag'), //etag
+				  $(this).parent().prev().find('select').val(), //document_type
+				  $(this).parent().prev().find('textarea').val(), //main metadata
+				  $(this).val(), //tag string
+				  $(this).parent().prev().find('div.hidden').text()); //archive fields
+		  });
+	      
+	    })
+	  });
+    
+    var notes_field = $('<td valign="top"> <textarea></textarea></td>')
+      $("textarea", notes_field).val(data[i].notes)
+      .change(function(){
+		var druid = $(this)
+		  .parent()
+		  .parent()
+		  .find(".display-druid")
+		  .html();
+		save_notes(druid, $(this).val());
+	      });
+    tr.append(notes_field);
+
+    $("#data-tbody").append(tr);
+  }
+  $("#data-tbody").children("tr:first").css('background','lightgreen');    
+
+  refresh_tags();
+  return false;
+}
+
+function get_pdf_name(druid) {
+  var url = "https://saltworks.stanford.edu/assets/"+druid+".pdf";
+  return url;
+}
+
+function get_pdf_nameDEPRECATED(druid) {
+  var salt_user = "salt";
+  var salt_pw = "35473d24664035c02d92aba25c94d9c6";
+  //return "http://"+salt_user+":"+salt_pw+"\@salt-dev.stanford.edu/assets/"+druid+"/"+druid+".pdf";
+  return "http://saltworks.stanford.edu/assets/"+druid+".pdf";
+  //https://saltworks.stanford.edu/assets/mz904yp4860.pdf
+}
+
+ function save_metadata(context, accession, itemKey, etag, document_type, metadata, tag_string, archive_fields) {
+   alert($(context).html());return;
+   alert(accession+":"+itemKey+":"+etag);
+  //assume [TITLE] titlwlekn p [PAGES] asdlksd [CORPORATE_ENTITY] sdfgas, etc.
+  //archive fields
+
+  var url = archive_fields.split(/\[URL\]/)[1];
+  if (typeof url == 'undefined') {
+    alert("[url] tag corrupted");
+    return false;
+  }
+  url = $.trim(url.split(/\[[A-Z_\-\s]*\]/)[0]);
+
+  var callNumber = archive_fields.split(/\[CALL_NUMBER\]/)[1];
+  if (typeof callNumber == 'undefined') {
+    alert("[callNumber] tag corrupted");
+    return false;
+  }
+  callNumber = $.trim(callNumber.split(/\[[A-Z_\-\s]*\]/)[0]);
+
+  var archiveLocation = archive_fields.split(/\[ARCHIVE_LOCATION\]/)[1];
+  if (typeof archiveLocation == 'undefined') {
+    alert("[archiveLocation] tag corrupted");
+    return false;
+  }
+  archiveLocation = $.trim(archiveLocation.split(/\[[A-Z_\-\s]*\]/)[0]);
+
+  //lowood fields
+  var title = metadata.split(/\[TITLE\]/)[1];
+  if (typeof title == 'undefined') {
+    alert("[TITLE] tag corrupted");
+    return false;
+  }
+  title = $.trim(title.split(/\[[A-Z_\-\s]*\]/)[0]);
+
+  var originators_string = metadata.split(/\[ORIGINATORS\]/)[1];
+  if (typeof originators_string == 'undefined') {
+    alert("[ORIGINATORS] tag corrupted");
+    return false;
+  }
+  originators_string = $.trim(originators_string.split(/\[[A-Z_\-\s]*\]/)[0]);
+  //count ";", if none, count "\n", if none, split by /,/ else split by /[;\n]/  
+  if (originators_string.indexOf(';') < 0 && originators_string.indexOf("\n") < 0) {
+    var raw_originators = originators_string.split(/,/);
+  } else {
+    var raw_originators = originators_string.split(/[;\n]+/);
+  }
+  var originators_array = [];
+  for (var i = 0;i<raw_originators.length;i++) {
+    var originator = $.trim(raw_originators[i]);
+    if (originator.length == 0) continue;
+    originators_array.push(originator);
+  }
+
+  var date = metadata.split(/\[DATE\]/)[1];
+  if (typeof date == 'undefined') {
+    alert("[DATE] tag corrupted");
+    return false;
+  }
+  date = $.trim(date.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var document_subtype = metadata.split(/\[DOCUMENT_SUBTYPE\]/)[1];
+  if (typeof document_subtype == 'undefined') {
+    alert("[DOCUMENT_SUBTYPE] tag corrupted");
+    return false;
+  }
+  document_subtype = $.trim(document_subtype.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var containing_work = metadata.split(/\[CONTAINING_WORK\]/)[1];
+  if (typeof containing_work == 'undefined') {
+    alert("[CONTAINING_WORK] tag corrupted");
+    return false;
+  }
+  containing_work = $.trim(containing_work.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var corporate_entity = metadata.split(/\[CORPORATE_ENTITY\]/)[1];
+  if (typeof corporate_entity == 'undefined') {
+    alert("[CORPPORATE_ENTITY] tag corrupted");
+    return false;
+  }
+  corporate_entity = $.trim(corporate_entity.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var number = metadata.split(/\[NUMBER\]/)[1];
+  if (typeof number == 'undefined') {
+    alert("[NUMBER] tag corrupted");
+    return false;
+  }
+  number = $.trim(number.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var extent = metadata.split(/\[EXTENT\]/)[1];
+  if (typeof extent == 'undefined') {
+    alert("[EXTENT] tag corrupted");
+    return false;
+  }
+  extent = $.trim(extent.split(/\[[A-Z_\-\s]*\]/)[0]);
+  var language = metadata.split(/\[LANGUAGE\]/)[1];
+  if (typeof language == 'undefined') {
+    alert("[LANGUAGE] tag corrupted");
+    return false;
+  }
+  language = $.trim(language.split(/\[[A-Z_\-\s]*\]/)[0]);
+
+  var abstract = metadata.split(/\[ABSTRACT\]/)[1];
+  if (typeof abstract == 'undefined') {
+    alert("[ABSTRACT] tag corrupted");
+    return false;
+  }
+  abstract = $.trim(abstract.split(/\[[A-Z_\-\s]*\]/)[0]);
+
+  var place = metadata.split(/\[PLACE\]/)[1];
+  if (typeof place == 'undefined') {
+    alert("[PLACE] tag corrupted");
+    return false;
+  }
+  place = $.trim(place.split(/\[[A-Z_\-\s]*\]/)[0]);
+
+  var raw_tags = tag_string.split(/[,;\n]+/);
+  var tags_array = [];
+  for (var i = 0;i<raw_tags.length;i++) {
+    var tag = $.trim(raw_tags[i]);
+    if (tag.length == 0) continue;
+    tags_array.push({tag:tag});
+  }
+    
+  var m = {url:url,
+	   archiveLocation:archiveLocation,
+	   callNumber:callNumber,
+	   document_type:document_type,
+	   document_subtype:document_subtype,
+	   title:title,
+	   date:date,
+	   originators:originators_array,
+	   place:place,
+	   corporate_entity:corporate_entity,
+	   containing_work:containing_work,
+	   number:number,
+	   abstract:abstract,
+	   extent:extent,
+	   language:language,
+	   tags:tags_array
+  };
+  alert(JSON.stringify(m));
+
+    $.ajax({
+      url: "zotero_connect.php", 
+     	  data: {mode: 'write',
+	    itemKey: itemKey,
+	    accession: accession,
+	    etag: etag,
+	    json: JSON.stringify(m)}, 
+	  dataType: "text",
+	  success: (function(data) {
+	      alert("record saved"+dump(data));
+	    })
+	  });
+
+  /*
+  $.ajax({
+    url: "set_data.php",
+	data: {druid: druid, 
+	  title: title,
+	  originator: originator,
+	  date: date,
+	  document_type: document_type,
+	  document_subtype: document_subtype,
+	  containing_work: containing_work,
+	  corporate_entity: corporate_entity,
+	  number: number,
+	  extent: extent,
+	  language: language,
+	  abstract: abstract},
+	dataType: "text",
+	success: confirm
+	});
+  */
+}
+
+
+
+function save_tags(druid, tags) {
+  $.ajax({
+    url: "set_data.php",
+	data: {druid: druid, tags: tags},
+	dataType: "text",
+	success: confirm
+	});
+}
+
+function save_notes(druid, notes) {
+  $.ajax({
+    url: "set_data.php",
+	data: {druid: druid, notes: notes},
+	dataType: "text",
+	success: confirm
+	});
+}
+
+function confirm(msg) {
+  //alert(msg);
+}
+
+function format_tags(data) {
+  var tag_array = [];
+  for (var i=0; i<data.tags.length; i++) {
+    tag_array.push(data.tags[i].tag);
+  }
+  return tag_array.join(', ');
+}
+
+function format_archive_fields(data) {
+  var field_values = [];
+  var field_names = [];
+  field_names.push("[CALL_NUMBER]");
+  field_values.push(data.callNumber);
+  field_names.push("[URL]");
+  field_values.push(data.url);
+  field_names.push("[ARCHIVE_LOCATION]");
+  field_values.push(data.archiveLocation);
+  var text = "";
+  for (var i=0;i<field_names.length;i++) {
+    text += field_names[i]+" "+field_values[i]+"\n";
+  }
+  return text;
+}
+function format_metadata(data) {
+  var field_values = [];
+  var field_names = [];
+  field_names.push("[TITLE]");
+  field_values.push(data.title);
+  field_names.push("[DATE]");
+  field_values.push(data.date);
+  field_names.push("[ORIGINATORS]");
+  field_values.push(data.originators);
+  field_names.push("[DOCUMENT_SUBTYPE]");
+  field_values.push(data.document_subtype);
+  field_names.push("[CONTAINING_WORK]");
+  field_values.push(data.containing_work);
+  field_names.push("[NUMBER]");
+  field_values.push(data.number);
+  field_names.push("[EXTENT]");
+  field_values.push(data.extent);
+  field_names.push("[CORPORATE_ENTITY]");
+  field_values.push(data.corporate_entity);
+  field_names.push("[PLACE]");
+  field_values.push(data.place);
+  field_names.push("[LANGUAGE]");
+  field_values.push(data.language);
+  field_names.push("[ABSTRACT]");
+  field_values.push(data.abstract);
+  var text = "";
+  for (var i=0;i<field_names.length;i++) {
+    text += field_names[i]+" "+field_values[i]+"\n";
+  }
+  return {document_type: data.document_type, text:text}
+}
