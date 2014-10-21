@@ -162,10 +162,14 @@ function generate_rows(data) {
       .hover(function () {$("div",this).show()},
 	     function () {$("div",this).hide()});
 
+    var thumbnail_div = $('<div/>')
+      .append($('<img src="http://saltworks.stanford.edu/assets/'+data[i].druid+'.jpg" />'));
+
     var td = $('<td valign="top"></td>');
     td.append($('<span class="display-druid" >'+data[i].druid+'</span>'));
     td.append($('<br/>'));
     td.append(pdf_button);
+    td.append(thumbnail_div);
     //td.append(summary_display_div);
     //td.append(summary_button);
     tr.append(td);

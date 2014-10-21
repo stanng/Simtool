@@ -105,10 +105,12 @@ case 'writenotes':
   echo json_encode(array('druid'=>$druid, 'notes'=>$notes));
   //$x = array();
   //delete old:
+  $delete_infos = '';
   for ($i = 0; $i < count($note_etags); $i++) {
     $delete_info = delete_zotero_item($note_itemKeys[$i],$accession,$note_etags[$i]);
-    //$x []= array('etag'=>$note_etags[$i],'itemKey'=>$note_itemKeys[$i],"item$i" => $return);
+    //$delete_infos .= "\n\n$delete_info";
   }
+  //echo json_encode(array('druid'=>$druid,'notes' => "[NOTE]".$delete_infos));
 
   die();
   
