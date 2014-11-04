@@ -8,6 +8,11 @@ $druid = $_REQUEST['druid'] ?: '';
 $howmany = $_REQUEST['howmany'] ?: '10';
 $mincos = $_REQUEST['mincos'] ?: '0.3';
 
+//extract druid if it is part of a url, eg. //bb030qh9859
+$pat = '/[a-z]{2}\d{3}[a-z]{2}\d{4}/';
+preg_match($pat,$druid,$match);
+if ($match) $druid = $match[0];
+
 // Get Candidate druids
 $q_sim_druids="
 select 
