@@ -7,5 +7,4 @@ RCS
 *.gzip
 *.gz
 *.log
-
-
+error_log
