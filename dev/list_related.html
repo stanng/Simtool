@@ -1,0 +1,70 @@
+<html>
+<head>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+<script> type="text/javascript">
+$(function() {
+    simtool_url = "http://scottvanduyne.com/simtool/Simtool/dev/get_similar_druids.php";
+    doc_url = "https://saltworks.stanford.edu/assets/sr470ty5702.jpg";
+    $.ajax({url:simtool_url,
+            data: {howmany:'10',
+                   mincos:'0.3',
+                   druid:doc_url},
+            dataType:'json',
+            success: load_items
+           });
+});
+  function load_items(json) {
+  var parent_div = $('body');
+  var cnt = json.length;
+  for (var i = 0; i < cnt; i++) {
+    (function(i) {
+      var druid = json[i].druid;
+      var img_src = json[i].thumbnail;
+      var item_div = $('<div/>'); 
+      var img_div = $('<img/>').attr("src",img_src);
+      var saltworks_stem = "https://saltworks.stanford.edu/catalog";
+      var link_url = saltworks_stem+"/druid:"+druid;
+      var link_div = $('<a/>')
+        .attr("href",link_url)
+        .text(druid)
+        .attr('id','title_'+druid);
+
+      item_div.append(img_div)
+              .append(link_div);
+
+      parent_div.append(item_div);
+alert (link_url);
+
+      $.ajax({url:link_url, 
+	      dataType: "html",
+              error:function(){},//alert("error");},
+	      success: function (data) {
+	          //var title = data.replace(' - SALT (Self Archiving Legacy Toolkit)','');
+	          alert("title");
+		      //$("#title_"+druid).text(title);
+	         }
+	      });
+    })(i); //end of enclosure
+  } //end of for loop
+} //end of function
+/*
+//add these items from the catalog page ajax results...
+<dd class="blacklight-subseries_display">New World Vistas Related Materials1992 -       1995</dd>
+
+<dd class='blacklight-notes_display'>Presentation Manuscript (2008); American Association for Artificial Intelligence;
+  various paper abstracts/notes
+
+      <dd class="blacklight-originator_s">Edward Feigenbaum</dd>
+
+</dl>
+*/
+
+</script>
+</head>
+<body>
+</body>
+</html>
+
+
+		          
