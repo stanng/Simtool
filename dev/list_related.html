@@ -6,43 +6,60 @@
 $(function() {
     simtool_url = "http://scottvanduyne.com/simtool/Simtool/dev/get_similar_druids.php";
     doc_url = "https://saltworks.stanford.edu/assets/sr470ty5702.jpg";
-    $.ajax({url:simtool_url,
+    doc_url = "https://saltworks.stanford.edu/catalog/druid:yq084bm9203";
+    saltworks_stem = "https://saltworks.stanford.edu/catalog";
+$('button').click(function(){
+    $('#results').empty();
+$.ajax({url:simtool_url,
             data: {howmany:'10',
-                   mincos:'0.3',
-                   druid:doc_url},
+                   mincos:'0.25',
+                   druid:$('input').val()},
             dataType:'json',
             success: load_items
            });
+})
 });
+
   function load_items(json) {
-  var parent_div = $('body');
+  var parent_div = $('#results');
   var cnt = json.length;
   for (var i = 0; i < cnt; i++) {
     (function(i) {
       var druid = json[i].druid;
       var img_src = json[i].thumbnail;
       var item_div = $('<div/>'); 
+      var details_div = $('<div/>'); 
       var img_div = $('<img/>').attr("src",img_src);
-      var saltworks_stem = "https://saltworks.stanford.edu/catalog";
       var link_url = saltworks_stem+"/druid:"+druid;
       var link_div = $('<a/>')
         .attr("href",link_url)
+        .attr("target","_blank")
         .text(druid)
         .attr('id','title_'+druid);
+      var authors_div = $('<div/>')
+       .attr('id','authors_'+druid);
+      var subseries_div = $('<div/>')
+       .attr('id','subseries_'+druid);
+      var notes_div = $('<div/>')
+       .attr('id','notes_'+druid);
 
-      item_div.append(img_div)
-              .append(link_div);
-
-      parent_div.append(item_div);
-alert (link_url);
-
-      $.ajax({url:link_url, 
-	      dataType: "html",
+      details_div.css('max-width','600px')
+		      .append(link_div)
+		      .append(authors_div)
+		      .append(subseries_div)
+		      .append(notes_div);
+      item_div.append(img_div.css('float','left').css('clear','both').css('margin','5px'))
+              .append(details_div.css('float','left'));
+      parent_div.append(item_div.css('border','solid black 1px').css('overflow','hidden'));
+      $.ajax({url:"getcatpage.php",
+	      dataType: "json",
+              data: {url:druid},
               error:function(){},//alert("error");},
-	      success: function (data) {
-	          //var title = data.replace(' - SALT (Self Archiving Legacy Toolkit)','');
-	          alert("title");
-		      //$("#title_"+druid).text(title);
+	      success: function (j) {
+		      $("#title_"+druid).text(j.title);
+		      $("#notes_"+druid).text(j.notes);
+		      $("#authors_"+druid).text(j.authors);
+		      $("#subseries_"+druid).text(j.subseries);
 	         }
 	      });
     })(i); //end of enclosure
@@ -63,6 +80,8 @@ alert (link_url);
 </script>
 </head>
 <body>
+<div><input style="margin:10px;"></input><button type="submit" onclick=></button></div>
+<div id='results'></div>
 </body>
 </html>
 
