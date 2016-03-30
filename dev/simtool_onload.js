@@ -1,5 +1,8 @@
-loaded = false; //replace state instead of pushstate if you are loading for the first time
-popper = false; //do not push the state if you are doing a popstate (DUR!!!!)
+simtoolObj = {};
+simtoolObj.loaded = false;//replace state instead of pushstate if you are loading for the first time
+simtoolObj.popper = false;//do not push the state if you are doing a popstate (DUR!!!!)
+simtoolObj.druidCache = {};
+
 $(function() {
 
 
@@ -23,14 +26,14 @@ $(function() {
 		var druid = $('#input-text').val();
 		var ps = {"druid":druid};
 		//push state
-		if (!popper) {
-		    if (!loaded) 
+		if (!simtoolObj.popper) {
+		    if (!simtoolObj.loaded) 
 			window.history.replaceState(ps,null,String(window.location).split("?")[0]+"?q="+druid);
 		    else
 			window.history.pushState(ps,null,String(window.location).split("?")[0]+"?q="+druid);	
 		} else
-		    popper = false;
-		loaded = true;
+		    simtoolObj.popper = false;
+		simtoolObj.loaded = true;
 	    })
 	    var q=gup('q');
 	//alert(q);
@@ -50,7 +53,7 @@ $(function() {
 		if (event.state == null) return false;
 		var obj = event.state;
 		var druid = obj.druid;
-		popper = true;
+		simtoolObj.popper = true;
 		load_listing(druid);
 	    });
 
@@ -142,21 +145,31 @@ function load_items(json) {
 		.append(img_div)
 		.append(details_div);
 	    parent_div
-		.append(item_div)
-		
-		$.ajax({url:"getcatpage.php",
-			    dataType: "json",
-			    data: {url:druid},
-			    error:function(){},//alert("error");},
-			    success: function (j) {
-			    $("#title_"+druid).text(j.title);
-			    $("#notes_"+druid).html("<b>Notes:</b> " +j.notes);
-			    $("#tags_"+druid).html("<b>Tags:</b> " + j.tags);
-			    $("#authors_"+druid).html("<b>Author:</b> " + j.authors);
-			    $("#subseries_"+druid).html("<b>Location:</b> "+j.subseries+", DRUID: " + j.druid);
-
-			}
-		    });
+		.append(item_div);
+	    
+		if (druid in simtoolObj) {
+		    var j = simtoolObj[druid];
+		    $("#title_"+druid).text(j.title);
+		    $("#notes_"+druid).html("<b>Notes:</b> " +j.notes);
+		    $("#tags_"+druid).html("<b>Tags:</b> " + j.tags);
+		    $("#authors_"+druid).html("<b>Author:</b> " + j.authors);
+		    $("#subseries_"+druid).html("<b>Location:</b> "+j.subseries+", DRUID: " + j.druid);
+		}
+		else {
+		    $.ajax({url:"getcatpage.php",
+				dataType: "json",
+				data: {url:druid},
+				error:function(){},//alert("error");},
+				success: function (j) {
+				simtoolObj[druid] = j;
+				$("#title_"+druid).text(j.title);
+				$("#notes_"+druid).html("<b>Notes:</b> " +j.notes);
+				$("#tags_"+druid).html("<b>Tags:</b> " + j.tags);
+				$("#authors_"+druid).html("<b>Author:</b> " + j.authors);
+				$("#subseries_"+druid).html("<b>Location:</b> "+j.subseries+", DRUID: " + j.druid);
+			    }
+			});
+		}
 	})(i); //end of enclosure
     } //end of for loop
 } //end of function
