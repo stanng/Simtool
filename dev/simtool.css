@@ -1,23 +1,48 @@
 body {
     font-family:Arial, Helvetica, sans-serif;
+    padding:0px;
+    margin:0px;
 }
 /*toolbar*/
+.simtoolNavbarContainer {
+    background-color:rgb(245,245,245);
+    border-bottom:1px solid rgb(200,200,200);
+    position:fixed;
+    top:0px;
+    left:0px;
+    width:100%;
+    box-shadow: 0px 2px 4px 0px rgba(0,0,0,.1);
+    -moz-box-shadow: 0px 2px 4px 0px rgba(0,0,0,.1);
+    -webkit-box-shadow: 0px 2px 4px 0px rgba(0,0,0,.1);
+}
 .simtoolNavbar {
    max-width:720px;
    min-width:400px;
    margin:auto;
 }
 #input-text {
-    
+    border:1px solid rgb(200,200,200);
+    border-radius:3px;
+    padding:5px;
+    width:290px;
 }
-#submit_button {
-    
+#submit-button {
+    padding:5px;
+    border:1px solid rgb(200,200,200);
+    border-radius:3px;
+    background-color:rgb(245,245,245);
+}
+#submit-button:hover {		
+    background-color:rgb(235,235,235);
+    cursor:pointer;
 }
 /*main body*/
 #results {
     max-width:720px;
     min-width:400px;
     margin:auto;
+    margin-top:50px;
+    
 }
 
 /*Item*/
