@@ -2,13 +2,29 @@ body {
     font-family:Arial, Helvetica, sans-serif;
 }
 /*toolbar*/
+.simtoolNavbar {
+   max-width:720px;
+   min-width:400px;
+   margin:auto;
+}
+#input-text {
+    
+}
+#submit_button {
+    
+}
+/*main body*/
+#results {
+    max-width:720px;
+    min-width:400px;
+    margin:auto;
+}
 
 /*Item*/
 .simtoolitemDiv {
 /*    border:solid black 1px;*/
     margin-bottom:10px;
     overflow:hidden;
-    width:560px;
     padding:10px;
     box-sizing:border-box;
 }
