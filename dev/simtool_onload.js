@@ -1,3 +1,5 @@
+loaded = false; //replace state instead of pushstate if you are loading for the first time
+popper = false; //do not push the state if you are doing a popstate (DUR!!!!)
 $(function() {
 
 
@@ -5,7 +7,9 @@ $(function() {
 	doc_url = "https://saltworks.stanford.edu/assets/sr470ty5702.jpg";
 	doc_url = "https://saltworks.stanford.edu/catalog/druid:yq084bm9203";
 	saltworks_stem = "https://saltworks.stanford.edu/catalog";
-
+	//var druid = gup('q');
+	//var ps = {"druid":druid};
+	//window.history.replaceState(ps,null,String(window.location).split("?")[0]+"?q="+druid);
 
 	$('#submit-button').click(function(){
 		$('#results').empty();
@@ -16,6 +20,17 @@ $(function() {
 			    dataType:'json',
 			    success: load_items
 			    });
+		var druid = $('#input-text').val();
+		var ps = {"druid":druid};
+		//push state
+		if (!popper) {
+		    if (!loaded) 
+			window.history.replaceState(ps,null,String(window.location).split("?")[0]+"?q="+druid);
+		    else
+			window.history.pushState(ps,null,String(window.location).split("?")[0]+"?q="+druid);	
+		} else
+		    popper = false;
+		loaded = true;
 	    })
 	    var q=gup('q');
 	//alert(q);
@@ -24,10 +39,27 @@ $(function() {
 	    $('#submit-button').click();
 	}
 
+	$(document).on('click',".simtoolLink",function() {
+		var druid = $(this).attr("druid");
+		//var ps = {"druid":druid};
+		//load page
+		load_listing(druid);
+	    });
+	
+	window.addEventListener('popstate', function(event) {
+		if (event.state == null) return false;
+		var obj = event.state;
+		var druid = obj.druid;
+		popper = true;
+		load_listing(druid);
+	    });
 
     });
 
-
+function load_listing(druid) {
+    $("#input-text").val(druid);
+    $("#submit-button").click();
+}
 function gup(name) {//from lobo235 -- Thankx!
     name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
     var regexS = "[\\?&]"+name+"=([^&#]*)";
@@ -75,6 +107,7 @@ function load_items(json) {
 		.addClass("simtoolLink")
 		//.attr("href",link_url)
 		//.attr("target","_blank")
+		.attr('druid',druid)
 		.text(druid)
 		.attr('id','title_'+druid);
 	    var authors_div = $('<div/>')
@@ -111,19 +144,19 @@ function load_items(json) {
 	    parent_div
 		.append(item_div)
 		
-	    $.ajax({url:"getcatpage.php",
-			dataType: "json",
-			data: {url:druid},
-			error:function(){},//alert("error");},
-			success: function (j) {
-			$("#title_"+druid).text(j.title);
-			$("#notes_"+druid).html("<b>Notes:</b> " +j.notes);
-			$("#tags_"+druid).html("<b>Tags:</b> " + j.tags);
-			$("#authors_"+druid).html("<b>Author:</b> " + j.authors);
-			$("#subseries_"+druid).html("<b>Location:</b> "+j.subseries+", DRUID: " + j.druid);
+		$.ajax({url:"getcatpage.php",
+			    dataType: "json",
+			    data: {url:druid},
+			    error:function(){},//alert("error");},
+			    success: function (j) {
+			    $("#title_"+druid).text(j.title);
+			    $("#notes_"+druid).html("<b>Notes:</b> " +j.notes);
+			    $("#tags_"+druid).html("<b>Tags:</b> " + j.tags);
+			    $("#authors_"+druid).html("<b>Author:</b> " + j.authors);
+			    $("#subseries_"+druid).html("<b>Location:</b> "+j.subseries+", DRUID: " + j.druid);
 
-		    }
-		});
+			}
+		    });
 	})(i); //end of enclosure
     } //end of for loop
 } //end of function
