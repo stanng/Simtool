@@ -91,8 +91,8 @@ function load_items(json) {
 		.addClass("simtoolTags");
 	    
 	    details_div
-		.append(rating_div)
 		.append(link_div)
+		.append(rating_div)
 		.append(authors_div)
 		.append(notes_div)
 		.append(tags_div)
