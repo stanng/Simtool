@@ -10,6 +10,7 @@ $(function() {
 	doc_url = "https://saltworks.stanford.edu/assets/sr470ty5702.jpg";
 	doc_url = "https://saltworks.stanford.edu/catalog/druid:yq084bm9203";
 	saltworks_stem = "https://saltworks.stanford.edu/catalog";
+	exhibit_stem = "https://exhibits.stanford.edu/feigenbaum/catalog/";
 	//var druid = gup('q');
 	//var ps = {"druid":druid};
 	//window.history.replaceState(ps,null,String(window.location).split("?")[0]+"?q="+druid);
@@ -107,7 +108,8 @@ function load_items(json) {
 		.attr('id','rating_'+druid)
 		.addClass("simtoolRating")
 		.text(rating_text);
-	    var link_url = saltworks_stem+"/druid:"+druid;
+	    //var link_url = saltworks_stem+"/druid:"+druid;
+	    var link_url = exhibit_stem+druid;
 	    var link_div = $('<div/>')
 		.addClass("simtoolLink")
 		//.attr("href",link_url)
