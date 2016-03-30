@@ -71,10 +71,10 @@ function load_items(json) {
 		.addClass("simtoolRating")
 		.text(rating_text);
 	    var link_url = saltworks_stem+"/druid:"+druid;
-	    var link_div = $('<a/>')
+	    var link_div = $('<div/>')
 		.addClass("simtoolLink")
-		.attr("href",link_url)
-		.attr("target","_blank")
+		//.attr("href",link_url)
+		//.attr("target","_blank")
 		.text(druid)
 		.attr('id','title_'+druid);
 	    var authors_div = $('<div/>')
@@ -89,6 +89,12 @@ function load_items(json) {
 	    var tags_div = $('<div/>')
 		.attr('id','tags_'+druid)
 		.addClass("simtoolTags");
+	    var SUNLink = $('<a/>')
+		.addClass("simtoolSUNLink")
+		.attr("href",link_url)
+		.attr("target","_blank")
+		.text("View in Stanford Digital Repository")
+		.attr('id','SUNLink_'+druid);
 	    
 	    details_div
 		.append(link_div)
@@ -96,7 +102,9 @@ function load_items(json) {
 		.append(authors_div)
 		.append(notes_div)
 		.append(tags_div)
-		.append(subseries_div);
+		.append(subseries_div)
+		.append(SUNLink);
+	    
 	    item_div
 		.append(img_div)
 		.append(details_div);
