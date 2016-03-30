@@ -13,7 +13,9 @@ $(function() {
 	//var druid = gup('q');
 	//var ps = {"druid":druid};
 	//window.history.replaceState(ps,null,String(window.location).split("?")[0]+"?q="+druid);
-
+	$('#back-button').click(function() {
+		history.back();
+	    });
 	$('#submit-button').click(function(){
 		$('#results').empty();
 		$.ajax({url:simtool_url,

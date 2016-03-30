@@ -22,20 +22,35 @@ body {
    max-width:720px;
    min-width:400px;
    margin:auto;
+   padding:10px;
 }
 #input-text {
     border:1px solid rgb(200,200,200);
     border-radius:3px;
     padding:5px;
-    width:290px;
+    width:250px;
+    float:left;
+    margin:0 10px 10px 0;
 }
 #submit-button {
     padding:5px;
     border:1px solid rgb(200,200,200);
     border-radius:3px;
     background-color:rgb(245,245,245);
+    float:left;
 }
 #submit-button:hover {		
+    background-color:rgb(235,235,235);
+    cursor:pointer;
+}
+#back-button {
+    padding:5px;
+    border:1px solid rgb(200,200,200);
+    border-radius:3px;
+    background-color:rgb(245,245,245);
+    float:right;
+}
+#back-button:hover {
     background-color:rgb(235,235,235);
     cursor:pointer;
 }
