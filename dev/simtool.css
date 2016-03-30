@@ -1,0 +1,44 @@
+body {
+    font-family:Arial, Helvetica, sans-serif;
+}
+/*toolbar*/
+
+/*Item*/
+.simtoolitemDiv {
+/*    border:solid black 1px;*/
+    margin-bottom:10px;
+    overflow:hidden;
+    width:560px;
+    padding:10px;
+    box-sizing:border-box;
+}
+.simtoolDetailImg {
+    float:left;
+    clear:both;
+    margin-right:10px;
+    
+}
+.simtoolDetailDiv {
+    /*max-width:430px;*/
+    width:calc(100% - 110px);
+    float:left;
+}
+.simtoolRating {
+
+}
+.simtoolLink {
+
+}
+.simtoolAuthors {
+
+}
+.simtoolSubseries {
+
+}
+.simtoolNotes {
+
+}
+.simtoolTags {
+
+}
+    
