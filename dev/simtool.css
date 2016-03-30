@@ -2,11 +2,14 @@ body {
     font-family:Arial, Helvetica, sans-serif;
     padding:0px;
     margin:0px;
+    overflow:hidden;
 }
 /*toolbar*/
 .simtoolNavbarContainer {
     background-color:rgb(245,245,245);
-    border-bottom:1px solid rgb(200,200,200);
+    /*border-bottom:1px solid rgb(200,200,200);*/
+    border:1px solid rgb(200,200,200);
+    box-sizing:border-box;
     position:fixed;
     top:0px;
     left:0px;
@@ -37,11 +40,16 @@ body {
     cursor:pointer;
 }
 /*main body*/
+.simtoolResultsContainer {
+    overflow:auto;
+    height:calc(100vh - 47px);
+    margin-top:47px;
+}
 #results {
     max-width:720px;
     min-width:400px;
     margin:auto;
-    margin-top:50px;
+    /*margin-top:50px;*/
     
 }
 
