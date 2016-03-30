@@ -3,22 +3,52 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
 <script> type="text/javascript">
+
+
+
+
 $(function() {
+
+
     simtool_url = "http://scottvanduyne.com/simtool/Simtool/dev/get_similar_druids.php";
     doc_url = "https://saltworks.stanford.edu/assets/sr470ty5702.jpg";
     doc_url = "https://saltworks.stanford.edu/catalog/druid:yq084bm9203";
     saltworks_stem = "https://saltworks.stanford.edu/catalog";
-$('button').click(function(){
+
+
+$('#submit-button').click(function(){
     $('#results').empty();
 $.ajax({url:simtool_url,
-            data: {howmany:'10',
-                   mincos:'0.25',
-                   druid:$('input').val()},
+            data: {howmany:'15',
+                   mincos:'0.0',
+                   druid:$('#input-text').val()},
             dataType:'json',
             success: load_items
            });
 })
+var q=gup('q');
+//alert(q);
+if (q!="") {
+    $('#input-text').val(q);
+    $('#submit-button').click();
+}
+
+
 });
+
+
+    function gup(name) {//from lobo235 -- Thankx!
+      name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+      var regexS = "[\\?&]"+name+"=([^&#]*)";
+      var regex = new RegExp( regexS );
+      var results = regex.exec( window.location.href );
+      if( results == null )
+        return "";
+      else
+        //return decodeURIComponent(results[1]);
+        return results[1];
+    }
+
 
   function load_items(json) {
   var parent_div = $('#results');
@@ -27,9 +57,22 @@ $.ajax({url:simtool_url,
     (function(i) {
       var druid = json[i].druid;
       var img_src = json[i].thumbnail;
+      var cos_sim = json[i].cos_sim;
+      var rating_text = "MIGHT BE RELATED";
+      if (cos_sim == 1.0) rating_text = "ORIGINAL DOCUMENT";
+      else if (cos_sim > 0.9) rating_text = "NEAR DUPLICATE";
+      else if (cos_sim > 0.75) rating_text = "NEAR DUPLICATE";
+      else if (cos_sim > 0.6) rating_text = "HIGHLY RELEVANT";
+      else if (cos_sim > 0.45) rating_text = "VERY SIMILAR";
+      else if (cos_sim > 0.3) rating_text = "SIMILAR";
+      else if (cos_sim > 0.15) rating_text = "POSSIBLY RELATED";
+      rating_text += " ("+(cos_sim.substring(0,4))+")";
+
       var item_div = $('<div/>'); 
       var details_div = $('<div/>'); 
-      var img_div = $('<img/>').attr("src",img_src);
+
+
+      var img_div = $('<img/>').attr("src",img_src).attr('width',100);
       var link_url = saltworks_stem+"/druid:"+druid;
       var link_div = $('<a/>')
         .attr("href",link_url)
@@ -42,24 +85,32 @@ $.ajax({url:simtool_url,
        .attr('id','subseries_'+druid);
       var notes_div = $('<div/>')
        .attr('id','notes_'+druid);
-
-      details_div.css('max-width','600px')
+      var tags_div = $('<div/>')
+       .attr('id','tags_'+druid);
+      var rating_div = $('<div/>')
+       .attr('id','rating_'+druid)
+       .text(rating_text);
+      details_div.css('max-width','430px')
+		      .append(rating_div)
 		      .append(link_div)
 		      .append(authors_div)
-		      .append(subseries_div)
-		      .append(notes_div);
+		      .append(notes_div)
+		      .append(tags_div)
+		      .append(subseries_div);
       item_div.append(img_div.css('float','left').css('clear','both').css('margin','5px'))
-              .append(details_div.css('float','left'));
-      parent_div.append(item_div.css('border','solid black 1px').css('overflow','hidden'));
+              .append(details_div.css({'float':'left'}));
+      parent_div.append(item_div.css({'border':'solid black 1px','overflow':'hidden','width':'560px'}));
       $.ajax({url:"getcatpage.php",
 	      dataType: "json",
               data: {url:druid},
               error:function(){},//alert("error");},
 	      success: function (j) {
 		      $("#title_"+druid).text(j.title);
-		      $("#notes_"+druid).text(j.notes);
-		      $("#authors_"+druid).text(j.authors);
-		      $("#subseries_"+druid).text(j.subseries);
+		      $("#notes_"+druid).html("<b>Notes:</b> " +j.notes);
+		      $("#tags_"+druid).html("<b>Tags:</b> " + j.tags);
+		      $("#authors_"+druid).html("<b>Author:</b> " + j.authors);
+		      $("#subseries_"+druid).html("<b>Location:</b> "+j.subseries+", DRUID: " + j.druid);
+
 	         }
 	      });
     })(i); //end of enclosure
@@ -80,7 +131,7 @@ $.ajax({url:simtool_url,
 </script>
 </head>
 <body>
-<div><input style="margin:10px;"></input><button type="submit" onclick=></button></div>
+<div><input id="input-text" style="margin:10px;" value=""></input><input id="submit-button" type="submit" value="Submit Druid" onclick=></input></div>
 <div id='results'></div>
 </body>
 </html>

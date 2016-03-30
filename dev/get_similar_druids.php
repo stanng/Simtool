@@ -37,7 +37,8 @@ while ($row = mysql_fetch_assoc($result)){
   //$pdffile_path="file://localhost/Users/stanleyng/feigenbaum/pdfs/"    . $candidate_druid . ".pdf";
   //  $pdffile_path="http://${salt_user}:${salt_pw}@salt-dev.stanford.edu/assets/${candidate_druid}/${candidate_druid}.pdf";
   $pdffile_path="https://saltworks.stanford.edu/assets/{$candidate_druid}.pdf";
-  $thumbnail_path="https://saltworks.stanford.edu/assets/{$candidate_druid}.jpg";
+  //$thumbnail_path="https://saltworks.stanford.edu/assets/{$candidate_druid}.jpg";
+  $thumbnail_path="http://scottvanduyne.com/simtool/thumbs/th/{$candidate_druid}.jpg";
 
   $q_details="select textlen, title, description, tags, notes, originator, date, document_type, document_subtype, containing_work, corporate_entity, number, extent, language, abstract, EAF_hard_drive_file_name, zotero_key from urllist where url='$textfile_path'";
   $result_details   = mysql_query($q_details);
