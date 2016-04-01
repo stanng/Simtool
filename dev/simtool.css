@@ -59,13 +59,16 @@ body {
     overflow:auto;
     height:calc(100vh - 47px);
     margin-top:47px;
+    border-left:1px solid rgb(200,200,200);
+    border-right:1px solid rgb(200,200,200);
+    border-bottom:1px solid rgb(200,200,200);
+    box-sizing:border-box;
 }
 #results {
     max-width:720px;
     min-width:400px;
     margin:auto;
-    /*margin-top:50px;*/
-    
+        /*margin-top:50px;*/
 }
 
 /*Item*/
@@ -83,6 +86,8 @@ body {
     background-color:rgb(245,245,245);
     background-color:#FCFFDF;
     border:1px solid rgb(200,200,200);
+    /*margin:0px;
+    border:0px;*/
 }
 .simtoolDetailImg {
     float:left;

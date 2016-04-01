@@ -168,7 +168,9 @@ function load_items(json) {
 	    
 		if (druid in simtoolObj) {
 		    var j = simtoolObj[druid];
-		    $("#title_"+druid).text(j.title);
+		    if (j.title == "")
+			item_div.html("Removed for Privacy");
+		    $("#title_"+druid).html(j.title);
 		    $("#notes_"+druid).html("<b>Notes:</b> " +j.notes);
 		    $("#tags_"+druid).html("<b>Tags:</b> " + j.tags);
 		    $("#authors_"+druid).html("<b>Author:</b> " + j.authors);
@@ -181,7 +183,9 @@ function load_items(json) {
 				error:function(){},//alert("error");},
 				success: function (j) {
 				simtoolObj[druid] = j;
-				$("#title_"+druid).text(j.title);
+				if (j.title == "")
+				    item_div.html("Removed for Privacy");
+				$("#title_"+druid).html(j.title);
 				$("#notes_"+druid).html("<b>Notes:</b> " +j.notes);
 				$("#tags_"+druid).html("<b>Tags:</b> " + j.tags);
 				$("#authors_"+druid).html("<b>Author:</b> " + j.authors);
