@@ -3,7 +3,8 @@ simtoolObj.loaded = false;//replace state instead of pushstate if you are loadin
 simtoolObj.popper = false;//do not push the state if you are doing a popstate (DUR!!!!)
 simtoolObj.druidCache = {};
 simtoolObj.druidListCache = {};
-
+simtoolObj.historyBack = 0;
+simtoolObj.historyForward = 0;
 $(function() {
 
 
@@ -15,8 +16,22 @@ $(function() {
 	//var druid = gup('q');
 	//var ps = {"druid":druid};
 	//window.history.replaceState(ps,null,String(window.location).split("?")[0]+"?q="+druid);
+	
 	$('#back-button').click(function() {
-		history.back();
+		if (simtoolObj.historyBack > 1) {
+		    history.back();
+		    simtoolObj.historyBack--;
+		    simtoolObj.historyForward++;
+		}
+		check_arrows();
+	    });
+	$('#forward-button').click(function() {
+		if (simtoolObj.historyForward > 0) {
+		    history.forward();
+		    simtoolObj.historyForward--;
+		    simtoolObj.historyBack++;
+		}
+		check_arrows();
 	    });
 	$('#submit-button').click(function(){
 		$('#results').empty();
@@ -35,13 +50,17 @@ $(function() {
 		var ps = {"druid":druid};
 		//push state
 		if (!simtoolObj.popper) {
+		    simtoolObj.historyForward=0;
+		    simtoolObj.historyBack++;
 		    if (!simtoolObj.loaded) 
 			window.history.replaceState(ps,null,String(window.location).split("?")[0]+"?q="+druid);
 		    else
 			window.history.pushState(ps,null,String(window.location).split("?")[0]+"?q="+druid);	
-		} else
+		} else {
 		    simtoolObj.popper = false;
+		}
 		simtoolObj.loaded = true;
+		check_arrows();
 	    })
 	    var q=gup('q');
 	//alert(q);
@@ -69,7 +88,18 @@ $(function() {
 	    });
 
     });
-
+function check_arrows() {
+    //back arrow
+    if (simtoolObj.historyBack <= 1)
+	$("#back-button").css("visibility","hidden");
+    else
+	$("#back-button").css("visibility","visible");
+    
+    if (simtoolObj.historyForward >= 1)
+	$("#forward-button").css("visibility","visible");
+    else
+	$("#forward-button").css("visibility","hidden");
+}
 function load_listing(druid) {
     $("#input-text").val(druid);
     $("#submit-button").click();
@@ -97,7 +127,6 @@ function load_items(json) {
 	    var druid = json[i].druid;
 	    var img_src = json[i].thumbnail;
 	    var cos_sim = json[i].cos_sim;
-	    console.log(cos_sim);
 	    var rating_text = "MIGHT BE RELATED";
 	    if (cos_sim == 1.0) {
 		rating_text = "ORIGINAL DOCUMENT";
