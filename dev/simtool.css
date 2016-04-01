@@ -49,9 +49,12 @@ body {
     border-radius:3px;
     background-color:rgb(245,245,245);
     float:right;
-    font-size:17px;
+    font-size:14px;
     margin-right:10px;
-    padding:4px 4px 0px 4px;
+    /*padding:4px 4px 0px 4px;*/
+    line-height:14px;
+    font-size:21px;
+    
     visibility:hidden;
 }
 #back-button:hover, #forward-button:hover {
