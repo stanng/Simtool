@@ -181,7 +181,7 @@ function load_items(json) {
 		    //.attr("href",link_url)
 		    //.attr("target","_blank")
 		    //.text("View in Stanford Digital Repository")
-		    .html("<div><b>Search in similarity tool:</b> <span class='"+(i == 0 ? "simtoolLink-first" : "")+" simtoolLink' druid='"+druid+"'>"+druid+"</span></div>");
+		    .html("<div><b>Similarity Search:</b> <span class='"+(i == 0 ? "simtoolLink-first" : "")+" simtoolLink' druid='"+druid+"'>"+druid+"</span></div>");
 	    } 		
 	    
 	    details_div
@@ -207,7 +207,7 @@ function load_items(json) {
 		    if (j.title == "") {
 			item_div.html("<div><b>Removed for Privacy</b></div>");
 			item_div.append("<div style='color:"+rating_div.css('color')+"'>"+rating_div.html()+"</div>");
-			item_div.append("<div><b>Search in similarity tool:</b> <span class='simtoolLink' druid='"+druid+"'>"+druid+"</span></div>");
+			item_div.append("<div><b>Similarity Search:</b> <span class='simtoolLink' druid='"+druid+"'>"+druid+"</span></div>");
 			
 			return;
 		    }
@@ -228,7 +228,7 @@ function load_items(json) {
 				if (j.title == "") {
 				    item_div.html("<div><b>Removed for Privacy</b></div>");
 				    item_div.append("<div style='color:"+rating_div.css('color')+"'>"+rating_div.html()+"</div>");
-				    item_div.append("<div><b>Search in similarity tool:</b> <span class='simtoolLink' druid='"+druid+"'>"+druid+"</span></div>");
+				    item_div.append("<div><b>Similarity Search:</b> <span class='simtoolLink' druid='"+druid+"'>"+druid+"</span></div>");
 				    item_div.css("font-size","14px");
 			
 				    return;
