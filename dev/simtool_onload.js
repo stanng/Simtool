@@ -109,6 +109,8 @@ function load_items(json) {
 
 	    var item_div = $('<div/>')
 		.addClass("simtoolItemDiv"); 
+	    if (i == 0)
+		item_div.addClass("simtoolItemDiv-first");
 	    var details_div = $('<div/>')
 		.addClass("simtoolDetailDiv"); 
 	    var img_div = $('<img/>')
