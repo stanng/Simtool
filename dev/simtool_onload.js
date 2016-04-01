@@ -97,20 +97,45 @@ function load_items(json) {
 	    var druid = json[i].druid;
 	    var img_src = json[i].thumbnail;
 	    var cos_sim = json[i].cos_sim;
+	    console.log(cos_sim);
 	    var rating_text = "MIGHT BE RELATED";
-	    if (cos_sim == 1.0) rating_text = "ORIGINAL DOCUMENT";
-	    else if (cos_sim > 0.9) rating_text = "NEAR DUPLICATE";
-	    else if (cos_sim > 0.75) rating_text = "NEAR DUPLICATE";
-	    else if (cos_sim > 0.6) rating_text = "HIGHLY RELEVANT";
-	    else if (cos_sim > 0.45) rating_text = "VERY SIMILAR";
-	    else if (cos_sim > 0.3) rating_text = "SIMILAR";
-	    else if (cos_sim > 0.15) rating_text = "POSSIBLY RELATED";
+	    if (cos_sim == 1.0) {
+		rating_text = "ORIGINAL DOCUMENT";
+		rating_color = "red";
+		rating_color = "#F44336";
+	    } else if (cos_sim > 0.9) {
+		rating_text = "NEAR DUPLICATE";
+		rating_color = "red";
+		rating_color = "#F44336";
+	    } else if (cos_sim > 0.75) {
+		rating_text = "HIGHLY RELATED";
+		rating_color = "red";
+		rating_color = "#F44336";
+	    } else if (cos_sim > 0.6) {
+		rating_text = "HIGHLY RELEVANT";
+		rating_color = "orange";
+		rating_color = "#FF9800";
+	    } else if (cos_sim > 0.45) {
+		rating_text = "VERY SIMILAR";
+		rating_color = "green";
+		rating_color = "#4CAF50";
+	    } else if (cos_sim > 0.3) {
+		rating_text = "SIMILAR";
+		rating_color = "blue";
+		rating_color = "#2196F3";
+	    } else if (cos_sim > 0.15) {
+		rating_text = "POSSIBLY RELATED";
+		rating_color = "purple";
+		rating_color = "#673AB7";
+	    }
 	    rating_text += " ("+(cos_sim.substring(0,4))+")";
 
 	    var item_div = $('<div/>')
 		.addClass("simtoolItemDiv"); 
 	    if (i == 0)
 		item_div.addClass("simtoolItemDiv-first");
+	    //if (i != 0 && rating_color)
+	    item_div.css("border-left","6px solid "+rating_color);
 	    var details_div = $('<div/>')
 		.addClass("simtoolDetailDiv"); 
 	    var img_div = $('<img/>')
@@ -120,6 +145,8 @@ function load_items(json) {
 		.attr('id','rating_'+druid)
 		.addClass("simtoolRating")
 		.text(rating_text);
+	    if (rating_color)
+		rating_div.css("color",rating_color);
 	    //var link_url = saltworks_stem+"/druid:"+druid;
 	    var link_url = exhibit_stem+druid;
 	    var link_div = $('<a/>')
@@ -179,14 +206,15 @@ function load_items(json) {
 		    var j = simtoolObj[druid];
 		    if (j.title == "") {
 			item_div.html("<div><b>Removed for Privacy</b></div>");
-			item_div.append("<div>"+rating_div.text()+"</div>");
+			item_div.append("<div style='color:"+rating_div.css('color')+"'>"+rating_div.html()+"</div>");
 			item_div.append("<div><b>Search in similarity tool:</b> <span class='simtoolLink' druid='"+druid+"'>"+druid+"</span></div>");
 			
 			return;
 		    }
 		    $("#title_"+druid).html(j.title);
 		    $("#notes_"+druid).html("<b>Notes:</b> " +j.notes);
-		    $("#tags_"+druid).html("<b>Tags:</b> " + j.tags);
+		    if (j.tags) $("#tags_"+druid).html("<b>Tags:</b> " + j.tags);
+		    else $("#tags_"+druid).remove();
 		    $("#authors_"+druid).html("<b>Author:</b> " + j.authors);
 		    $("#subseries_"+druid).html("<b>Location:</b> "+j.subseries+", DRUID: " + j.druid);
 		}
@@ -199,7 +227,7 @@ function load_items(json) {
 				simtoolObj[druid] = j;
 				if (j.title == "") {
 				    item_div.html("<div><b>Removed for Privacy</b></div>");
-				    item_div.append("<div>"+rating_div.text()+"</div>");
+				    item_div.append("<div style='color:"+rating_div.css('color')+"'>"+rating_div.html()+"</div>");
 				    item_div.append("<div><b>Search in similarity tool:</b> <span class='simtoolLink' druid='"+druid+"'>"+druid+"</span></div>");
 				    item_div.css("font-size","14px");
 			
@@ -207,7 +235,8 @@ function load_items(json) {
 				}
 				$("#title_"+druid).html(j.title);
 				$("#notes_"+druid).html("<b>Notes:</b> " +j.notes);
-				$("#tags_"+druid).html("<b>Tags:</b> " + j.tags);
+				if (j.tags) $("#tags_"+druid).html("<b>Tags:</b> " + j.tags);
+				else $("#tags_"+druid).remove();
 				$("#authors_"+druid).html("<b>Author:</b> " + j.authors);
 				$("#subseries_"+druid).html("<b>Location:</b> "+j.subseries+", DRUID: " + j.druid);
 			    }
