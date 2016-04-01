@@ -48,7 +48,7 @@ $(function() {
 	$(document).on('click',".simtoolLink",function() {
 		var druid = $(this).attr("druid");
 		var olddruid = gup("q");
-		if (druid = olddruid)
+		if (druid == olddruid)
 		    return;
 		//var ps = {"druid":druid};
 		//load page
