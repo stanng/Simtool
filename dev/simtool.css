@@ -7,7 +7,7 @@ body {
 }
 /*toolbar*/
 .simtoolNavbarContainer {
-    background-color:rgb(245,245,245);
+    background-color:rgb(238,238,238);
     border:1px solid rgb(200,200,200);
     box-sizing:border-box;
     position:fixed;
@@ -36,18 +36,18 @@ body {
     padding:5px;
     border:1px solid rgb(200,200,200);
     border-radius:3px;
-    background-color:rgb(245,245,245);
+    background-color:rgb(238,238,238);
     float:left;
 }
 #submit-button:hover {		
-    background-color:rgb(235,235,235);
+    background-color:rgb(230,230,230);
     cursor:pointer;
 }
 #back-button, #forward-button {
     padding:5px;
     border:1px solid rgb(200,200,200);
     border-radius:3px;
-    background-color:rgb(245,245,245);
+    background-color:rgb(238,238,238);
     float:right;
     font-size:14px;
     margin-right:10px;
@@ -58,7 +58,7 @@ body {
     visibility:hidden;
 }
 #back-button:hover, #forward-button:hover {
-    background-color:rgb(235,235,235);
+    background-color:rgb(230,230,230);
     cursor:pointer;
 }
 
@@ -71,6 +71,7 @@ body {
     border-right:1px solid rgb(200,200,200);
     border-bottom:1px solid rgb(200,200,200);
     box-sizing:border-box;
+    background-color:rgb(250,250,250);
 }
 #results {
     max-width:720px;
@@ -89,6 +90,7 @@ body {
     -moz-box-shadow: 1px 1px 4px 0 rgba(0,0,0,.3);
     -webkit-box-shadow: 1px 1px 4px 0 rgba(0,0,0,.3);
     box-shadow: 1px 1px 4px 0 rgba(0,0,0,.3);
+    background-color:white;
 }
 .simtoolItemDiv-first {
     background-color:rgb(245,245,245);
