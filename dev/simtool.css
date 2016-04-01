@@ -65,8 +65,8 @@ body {
 /*main body*/
 .simtoolResultsContainer {
     overflow:auto;
-    height:calc(100vh - 47px);
-    margin-top:47px;
+    height:calc(100vh - 49px);
+    margin-top:49px;
     border-left:1px solid rgb(200,200,200);
     border-right:1px solid rgb(200,200,200);
     border-bottom:1px solid rgb(200,200,200);
