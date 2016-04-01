@@ -122,16 +122,18 @@ function load_items(json) {
 		.text(rating_text);
 	    //var link_url = saltworks_stem+"/druid:"+druid;
 	    var link_url = exhibit_stem+druid;
-	    var link_div = $('<div/>')
-		.addClass("simtoolLink")
-		//.attr("href",link_url)
-		//.attr("target","_blank")
+	    var link_div = $('<a/>')
+		//.addClass("simtoolLink")
+		.addClass("simtoolSUNLink")
+		.attr('id','SUNLink_'+druid)
+		.attr("href",link_url)
+		.attr("target","_blank")
 		.attr('druid',druid)
 		.text(druid)
 		.attr('id','title_'+druid);
-	    if (i == 0) {
-		link_div.addClass("simtoolLink-first");
-	    }
+	    //if (i == 0) {
+	    //link_div.addClass("simtoolLink-first");
+	    //}
 	    var authors_div = $('<div/>')
 		.attr('id','authors_'+druid)
 		.addClass("simtoolAuthors");
@@ -144,12 +146,16 @@ function load_items(json) {
 	    var tags_div = $('<div/>')
 		.attr('id','tags_'+druid)
 		.addClass("simtoolTags");
-	    var SUNLink = $('<a/>')
-		.addClass("simtoolSUNLink")
-		.attr("href",link_url)
-		.attr("target","_blank")
-		.text("View in Stanford Digital Repository")
-		.attr('id','SUNLink_'+druid);
+	    if (i != 0) {
+		var SUNLink = $('<div/>')
+		    //.addClass("simtoolSUNLink")
+		    //.addClass("simtoolLink")
+		    .addClass("simtoolLinkDiv")
+		    //.attr("href",link_url)
+		    //.attr("target","_blank")
+		    //.text("View in Stanford Digital Repository")
+		    .html("<div><b>Search in similarity tool:</b> <span class='"+(i == 0 ? "simtoolLink-first" : "")+" simtoolLink' druid='"+druid+"'>"+druid+"</span></div>");
+	    } 		
 	    
 	    details_div
 		.append(link_div)
@@ -157,8 +163,11 @@ function load_items(json) {
 		.append(authors_div)
 		.append(notes_div)
 		.append(tags_div)
-		.append(subseries_div)
-		.append(SUNLink);
+		.append(subseries_div);
+	    if (i != 0) {
+		details_div
+		    .append(SUNLink);
+	    }
 	    
 	    item_div
 		.append(img_div)
@@ -168,8 +177,13 @@ function load_items(json) {
 	    
 		if (druid in simtoolObj) {
 		    var j = simtoolObj[druid];
-		    if (j.title == "")
-			item_div.html("Removed for Privacy");
+		    if (j.title == "") {
+			item_div.html("<div><b>Removed for Privacy</b></div>");
+			item_div.append("<div>"+rating_div.text()+"</div>");
+			item_div.append("<div><b>Search in similarity tool:</b> <span class='simtoolLink' druid='"+druid+"'>"+druid+"</span></div>");
+			
+			return;
+		    }
 		    $("#title_"+druid).html(j.title);
 		    $("#notes_"+druid).html("<b>Notes:</b> " +j.notes);
 		    $("#tags_"+druid).html("<b>Tags:</b> " + j.tags);
@@ -183,8 +197,14 @@ function load_items(json) {
 				error:function(){},//alert("error");},
 				success: function (j) {
 				simtoolObj[druid] = j;
-				if (j.title == "")
-				    item_div.html("Removed for Privacy");
+				if (j.title == "") {
+				    item_div.html("<div><b>Removed for Privacy</b></div>");
+				    item_div.append("<div>"+rating_div.text()+"</div>");
+				    item_div.append("<div><b>Search in similarity tool:</b> <span class='simtoolLink' druid='"+druid+"'>"+druid+"</span></div>");
+				    item_div.css("font-size","14px");
+			
+				    return;
+				}
 				$("#title_"+druid).html(j.title);
 				$("#notes_"+druid).html("<b>Notes:</b> " +j.notes);
 				$("#tags_"+druid).html("<b>Tags:</b> " + j.tags);

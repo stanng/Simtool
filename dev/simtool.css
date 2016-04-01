@@ -106,7 +106,10 @@ body {
 .simtoolLink {
     color:#005999;
     text-decoration:none;
-    font-size:18px;
+    font-size:14px;
+}
+.simtoolLinkDiv { 
+    font-size:14px;
 }
 .simtoolLink:hover{
     color:#3af;
@@ -129,7 +132,7 @@ body {
     font-size:14px;
 }
 .simtoolSUNLink {
-    font-size:14px;
+    font-size:18px;
     color:#005999;
     text-decoration:none;
 }
