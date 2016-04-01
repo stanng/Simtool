@@ -85,6 +85,10 @@ body {
     width:calc(100% - 110px);
     float:left;
 }
+.simtoolLink-first { 
+    color:#005999 !important;
+    cursor:auto !important;
+}
 .simtoolLink {
     color:#005999;
     text-decoration:none;

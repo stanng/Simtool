@@ -47,6 +47,9 @@ $(function() {
 
 	$(document).on('click',".simtoolLink",function() {
 		var druid = $(this).attr("druid");
+		var olddruid = gup("q");
+		if (druid = olddruid)
+		    return;
 		//var ps = {"druid":druid};
 		//load page
 		load_listing(druid);
@@ -117,6 +120,9 @@ function load_items(json) {
 		.attr('druid',druid)
 		.text(druid)
 		.attr('id','title_'+druid);
+	    if (i == 0) {
+		link_div.addClass("simtoolLink-first");
+	    }
 	    var authors_div = $('<div/>')
 		.attr('id','authors_'+druid)
 		.addClass("simtoolAuthors");
