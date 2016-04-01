@@ -2,6 +2,7 @@ simtoolObj = {};
 simtoolObj.loaded = false;//replace state instead of pushstate if you are loading for the first time
 simtoolObj.popper = false;//do not push the state if you are doing a popstate (DUR!!!!)
 simtoolObj.druidCache = {};
+simtoolObj.druidListCache = {};
 
 $(function() {
 
@@ -19,6 +20,10 @@ $(function() {
 	    });
 	$('#submit-button').click(function(){
 		$('#results').empty();
+		var druid = $('#input-text').val();
+		if (druid in simtoolObj.druidListCache)
+		    load_items(simtoolObj.druidListCache[druid]);
+		else{
 		$.ajax({url:simtool_url,
 			    data: {howmany:'15',
 				mincos:'0.0',
@@ -26,7 +31,7 @@ $(function() {
 			    dataType:'json',
 			    success: load_items
 			    });
-		var druid = $('#input-text').val();
+		}
 		var ps = {"druid":druid};
 		//push state
 		if (!simtoolObj.popper) {
@@ -83,6 +88,8 @@ function gup(name) {//from lobo235 -- Thankx!
 
 
 function load_items(json) {
+    var druid = $('#input-text').val();
+    simtoolObj.druidListCache[druid] = json;
     var parent_div = $('#results');
     var cnt = json.length;
     for (var i = 0; i < cnt; i++) {
